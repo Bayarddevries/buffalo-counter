@@ -35,7 +35,7 @@ const BUFFALO_DATA = [
     { year: 1875, population: 1000000, source: "Hornaday, 1889" },
     { year: 1880, population: 200000, source: "Hornaday, 1889" },
     { year: 1889, population: 1000, source: "Hornaday, 1889" },
-    { year: 1900, population: 500, source: "Hornaday, 1889" },
+    { year: 1900, population: 500, source: "Conservation records, ~1900" },
 ];
 
 // Status messages for screen readers
@@ -51,7 +51,7 @@ const EVENTS_DATA = [
     {
         year: 1830,
         title: 'The Hide Trade Begins',
-        description: 'Commercial hunting for buffalo robes expands. Each hide requires 3–4 buffalo killed. The robe trade peaked at 250,000 per year by the 1870s.',
+        description: 'Commercial hunting for buffalo robes expands. For every robe that reached market, several more buffalo were killed and left to rot - the trade fully obscured the true death toll. The robe trade peaked at 250,000 per year by the 1870s.',
         source: 'Isenberg, 2000',
     },
     {
@@ -69,7 +69,7 @@ const EVENTS_DATA = [
     {
         year: 1874,
         title: 'US Army Campaigns',
-        description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Sherman testified before Congress in support.',
+        description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Philip Sheridan championed this policy before Congress.',
         source: 'Congressional Globe, 1874',
     },
     {
@@ -91,6 +91,7 @@ const state = {
     lastTimestamp: null,
     isDragging: false,
     speed: CONFIG.DEFAULT_SPEED,
+    justDragged: false,
 };
 
 // ===================================
@@ -142,6 +143,11 @@ function getPopulationForYear(year) {
             if (year >= BUFFALO_DATA[i].year && year <= BUFFALO_DATA[i + 1].year) {
                 lower = BUFFALO_DATA[i];
                 upper = BUFFALO_DATA[i + 1];
+
+                // Exact match shortcut - skip interpolation for known data points
+                if (year === lower.year) return lower.population;
+                if (year === upper.year) return upper.population;
+
                 break;
             }
         }
@@ -281,8 +287,8 @@ function updateDisplay(year) {
     // Counter color state
     const statusClass = getStatusClass(population);
     elements.counter.className = 'counter';
-    if (statusClass === 'critical') {
-        elements.counter.classList.add('critical');
+    if (statusClass) {
+        elements.counter.classList.add(statusClass);
     }
 
     // Status indicator
@@ -472,6 +478,10 @@ function handleTimelineKeydown(e) {
             e.preventDefault();
             state.currentYear = CONFIG.END_YEAR;
             updateDisplay(state.currentYear);
+            break;
+        case 'Escape':
+            e.preventDefault();
+            stopAnimation();
             break;
         case ' ':
         case 'Enter':

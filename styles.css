@@ -214,6 +214,11 @@ h1 {
     text-shadow: 0 0 60px rgba(139, 0, 0, 0.4);
 }
 
+.counter.warning {
+    color: var(--color-warning);
+    text-shadow: 0 0 60px rgba(231, 111, 81, 0.3);
+}
+
 .counter-label {
     font-size: 1rem;
     color: var(--color-text-secondary);

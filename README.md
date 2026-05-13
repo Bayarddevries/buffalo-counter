@@ -46,7 +46,7 @@ The visualization uses linear interpolation between historical population estima
 | 1850 | 30,000,000 |
 | 1870 | 5,000,000 |
 | 1880 | 200,000 |
-| 1890 | 1,000 |
+| 1889 | 1,000 |
 | 1900 | 500 |
 
 ## Tech Stack
@@ -98,13 +98,13 @@ The `.github/workflows/deploy.yml` workflow automatically deploys to GitHub Page
 
 The buffalo collapse was driven by multiple factors:
 
-1. **Commercial hide trade** (1830s+) — Buffalo robes became fashionable in Europe and the eastern US. Each robe required 3-4 buffalo killed.
+1. **Commercial hide trade** (1830s+) — Buffalo robes became fashionable in Europe and the eastern US. For every robe that reached market, several more buffalo were killed and left to rot — the trade's full toll was far higher than robe counts alone suggest. The robe trade peaked at 250,000 per year by the 1870s.
 
 2. **Railroad expansion** (1860s+) — Railroads enabled mass slaughter. Hunters shot from train windows, leaving carcasses to rot. Hides were shipped east by the trainload.
 
 3. **US military campaigns** (1870s) — The US Army deliberately destroyed buffalo herds as a strategy to force Indigenous peoples onto reservations. "Kill the buffalo, save the man."
 
-4. **Disease** — Cattle brought diseases like Texas fever that devastated buffalo herds.
+4. **Disease** — Cattle brought bovine diseases like brucellosis and Texas fever that spread to buffalo herds, compounding the decline from hunting.
 
 ## Impact on Métis Communities
 
@@ -149,7 +149,7 @@ Every data point and claim in this visualization is sourced from published acade
 - **Isenberg, A. C. (2000).** *The Destruction of the Bison: An Environmental History, 1750–1920*. Cambridge University Press. [DOI: 10.1017/CBO9780511549861](https://doi.org/10.1017/CBO9780511549861)
 - **Flores, D. (2016).** *American Serengeti: The Last Big Animals of the Great Plains*. University of Oklahoma Press. — Estimated ~30 million; carrying capacity analysis.
 - **Roe, F. G. (1951).** *The North American Buffalo: A Critical Study of the Species in Its Wild State*. University of Toronto Press.
-- **Hornaday, W. T. (1889).** "The Extermination of the American Bison." *Annual Report of the Smithsonian Institution*, pp. 367–548. — First systematic count; documented the crash.
+- **Hornaday, W. T. (1889).** "The Extermination of the American Bison." *Annual Report of the Smithsonian Institution*, pp. 367–548. — First systematic count; documented the crash. (Note: the 1900 population figure of ~500 is from conservation-era records, not Hornaday's 1889 survey.)
 
 ### Historical Events & Mechanisms
 - **Isenberg (2000).** Ch. 2–5: hide trade, railroads, military campaigns.
@@ -161,7 +161,7 @@ Every data point and claim in this visualization is sourced from published acade
 - **Barkwell, L. J., ed. (2011).** *The Métis Homeland*. Louis Riel Institute.
 - **Payant, C. (2003).** *The Métis: The People, the History, the Culture*. Fitzhenry & Whiteside.
 
-Population data points shown are linear interpolations between published estimates. The exact pre-contact number is debated (Seton's 60M vs. Flores' 30M) — the scale of collapse, however, is undisputed.
+Population data points shown are linear interpolations between published estimates. The 1900 data point (~500) is estimated from conservation-era records, not from Hornaday's 1889 survey. The exact pre-contact number is debated (Seton's 60M vs. Flores' 30M) — the scale of collapse, however, is undisputed.
 
 ---
 
