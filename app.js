@@ -53,30 +53,40 @@ const EVENTS_DATA = [
         title: 'The Hide Trade Begins',
         description: 'Commercial hunting for buffalo robes expands. For every robe that reached market, several more buffalo were killed and left to rot - the trade fully obscured the true death toll. The robe trade peaked at 250,000 per year by the 1870s.',
         source: 'Isenberg, 2000',
+        image: 'images/buffalo-trade-illustration.webp',
+        imageCaption: 'Buffalo trade illustration, 19th century.',
     },
     {
         year: 1860,
         title: 'Railroads Reach the Plains',
         description: 'Railroads enable mass slaughter. Hunters shoot from train windows, leaving carcasses to rot. The AT&SF depot at Dodge City shipped 200,000 hides/year.',
         source: 'Brown, 1970',
+        image: 'images/buffalo-bones-cpr-boxcar.jpg',
+        imageCaption: 'Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan.',
     },
     {
         year: 1870,
         title: 'The Great Collapse',
         description: 'Population crashes from millions to hundreds of thousands. Métis communities face starvation as the buffalo economy vanishes.',
         source: 'Flores, 2016; Peterson, 1985',
+        image: 'images/bison-skull-pile.jpg',
+        imageCaption: 'Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer.',
     },
     {
         year: 1874,
         title: 'US Army Campaigns',
         description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Philip Sheridan championed this policy before Congress.',
         source: 'Congressional Globe, 1874',
+        image: 'images/metis-brigades.jpg',
+        imageCaption: 'Métis buffalo brigades, the organized hunting parties that sustained communities across the Plains.',
     },
     {
         year: 1883,
         title: 'The Last of the Herds',
         description: 'Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct. Hornaday\'s 1889 Smithsonian report documented the final toll.',
         source: 'Hornaday, 1889',
+        image: 'images/gathering-buffalo-bones.jpg',
+        imageCaption: 'Gathering Buffalo Bones on the Prairie, Alberta, Canada.',
     },
 ];
 
@@ -576,6 +586,35 @@ function setupEventListeners() {
 }
 
 // ===================================
+// Sources Bar Toggle
+// ===================================
+
+function setupSourcesToggle() {
+    const toggle = document.getElementById('sourcesToggle');
+    const panel = document.getElementById('sourcesPanel');
+    if (!toggle || !panel) return;
+
+    toggle.addEventListener('click', () => {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isExpanded));
+        if (isExpanded) {
+            panel.setAttribute('hidden', '');
+        } else {
+            panel.removeAttribute('hidden');
+        }
+    });
+
+    // Close on Escape
+    panel.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            toggle.setAttribute('aria-expanded', 'false');
+            panel.setAttribute('hidden', '');
+            toggle.focus();
+        }
+    });
+}
+
+// ===================================
 // Initialization
 // ===================================
 
@@ -587,6 +626,7 @@ function init() {
     createTimelineEventMarkers();
     updateDisplay(state.currentYear);
     setupEventListeners();
+    setupSourcesToggle();
 }
 
 if (document.readyState === 'loading') {
