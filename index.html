@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Buffalo Counter — 1800-1900</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #e8e8e8;
+            font-family: 'Crimson Text', Georgia, serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .counter-wrapper {
+            position: relative;
+            margin: 3rem 0;
+        }
+
+        .counter {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 700;
+            color: #c41e3a;
+            line-height: 1;
+            transition: color 0.3s ease;
+            text-shadow: 0 0 60px rgba(196, 30, 58, 0.3);
+        }
+
+        .counter.critical {
+            color: #8b0000;
+            text-shadow: 0 0 80px rgba(139, 0, 0, 0.5);
+        }
+
+        .counter-label {
+            font-size: 1.5rem;
+            color: #888;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .year-display {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 300;
+            color: #c49a3a;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .timeline {
+            width: 100%;
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c49a3a, #c41e3a);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .timeline-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: #c49a3a;
+            border: 3px solid #0a0a0a;
+            border-radius: 50%;
+            cursor: grab;
+            transition: left 0.1s ease;
+        }
+
+        .timeline-handle:active {
+            cursor: grabbing;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .events {
+            margin-top: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .event {
+            padding: 1rem;
+            border-left: 3px solid #c49a3a;
+            background: rgba(196, 154, 58, 0.05);
+            margin-bottom: 1rem;
+            text-align: left;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .event.active {
+            opacity: 1;
+            background: rgba(196, 154, 58, 0.1);
+        }
+
+        .event-year {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            color: #c49a3a;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-desc {
+            font-size: 0.95rem;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 1px solid #c49a3a;
+            color: #c49a3a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn:hover {
+            background: #c49a3a;
+            color: #0a0a0a;
+        }
+
+        .btn.playing {
+            background: #c41e3a;
+            border-color: #c41e3a;
+            color: #fff;
+        }
+
+        .context {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #222;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .context p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .context strong {
+            color: #c49a3a;
+        }
+
+        @media (max-width: 768px) {
+            .counter {
+                font-size: clamp(3rem, 20vw, 8rem);
+            }
+
+            .year-display {
+                font-size: 2rem;
+            }
+
+            .event {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Buffalo Counter</h1>
+
+        <div class="year-display" id="yearDisplay">1800</div>
+
+        <div class="counter-wrapper">
+            <div class="counter" id="counter">60,000,000</div>
+            <div class="counter-label">Plains Buffalo</div>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline" id="timeline">
+                <div class="timeline-fill" id="timelineFill"></div>
+                <div class="timeline-handle" id="timelineHandle"></div>
+            </div>
+            <div class="timeline-labels">
+                <span>1800</span>
+                <span>1850</span>
+                <span>1900</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="playBtn">▶ Play</button>
+            <button class="btn" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <div class="events" id="events">
+            <div class="event" data-year="1830">
+                <div class="event-year">1830</div>
+                <div class="event-title">The Hide Trade Begins</div>
+                <div class="event-desc">Commercial hunting for buffalo robes expands. Each hide requires 3-4 buffalo killed for robes alone.</div>
+            </div>
+
+            <div class="event" data-year="1860">
+                <div class="event-year">1860</div>
+                <div class="event-title">Railroads Reach the Plains</div>
+                <div class="event-desc">Railroads enable mass slaughter. Hunters shoot from train windows, leaving carcasses to rot.</div>
+            </div>
+
+            <div class="event" data-year="1870">
+                <div class="event-year">1870</div>
+                <div class="event-title">The Great Collapse</div>
+                <div class="event-desc">Population crashes from millions to hundreds of thousands. Métis communities face starvation.</div>
+            </div>
+
+            <div class="event" data-year="1874">
+                <div class="event-year">1874</div>
+                <div class="event-title">US Army Campaigns</div>
+                <div class="event-desc">Military strategy: destroy buffalo to force Indigenous peoples onto reservations.</div>
+            </div>
+
+            <div class="event" data-year="1883">
+                <div class="event-year">1883</div>
+                <div class="event-title">The Last of the Herds</div>
+                <div class="event-desc">Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct.</div>
+            </div>
+        </div>
+
+        <div class="context">
+            <p>
+                <strong>In 1800, an estimated 60 million buffalo</strong> roamed the North American plains.
+                By 1900, fewer than <strong>1,000 remained</strong>.
+            </p>
+            <p>
+                This collapse wasn't natural. It was deliberate — commercial hunting, military campaigns,
+                and government policy combined to destroy the foundation of Plains Indigenous life.
+            </p>
+            <p>
+                The Métis, who depended on buffalo for food, clothing, and trade, watched their world
+                disappear in a single lifetime.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Buffalo population data (approximate historical estimates)
+        const buffaloData = [
+            { year: 1800, population: 60000000 },
+            { year: 1810, population: 58000000 },
+            { year: 1820, population: 55000000 },
+            { year: 1830, population: 50000000 },
+            { year: 1840, population: 40000000 },
+            { year: 1850, population: 30000000 },
+            { year: 1860, population: 20000000 },
+            { year: 1870, population: 5000000 },
+            { year: 1875, population: 1000000 },
+            { year: 1880, population: 200000 },
+            { year: 1885, population: 50000 },
+            { year: 1890, population: 1000 },
+            { year: 1900, population: 500 }
+        ];
+
+        const startYear = 1800;
+        const endYear = 1900;
+        let currentYear = startYear;
+        let isPlaying = false;
+        let animationId = null;
+        let lastTimestamp = null;
+        const playSpeed = 2000; // milliseconds per year
+
+        const counterEl = document.getElementById('counter');
+        const yearDisplayEl = document.getElementById('yearDisplay');
+        const timelineEl = document.getElementById('timeline');
+        const timelineFillEl = document.getElementById('timelineFill');
+        const timelineHandleEl = document.getElementById('timelineHandle');
+        const playBtn = document.getElementById('playBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const eventsEl = document.getElementById('events');
+
+        function getPopulationForYear(year) {
+            // Find the two data points surrounding the year
+            let lower = buffaloData[0];
+            let upper = buffaloData[buffaloData.length - 1];
+
+            for (let i = 0; i < buffaloData.length - 1; i++) {
+                if (year >= buffaloData[i].year && year <= buffaloData[i + 1].year) {
+                    lower = buffaloData[i];
+                    upper = buffaloData[i + 1];
+                    break;
+                }
+            }
+
+            // Linear interpolation
+            const progress = (year - lower.year) / (upper.year - lower.year);
+            const population = lower.population + (upper.population - lower.population) * progress;
+
+            return Math.max(0, Math.round(population));
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+
+        function updateDisplay(year) {
+            const population = getPopulationForYear(year);
+
+            counterEl.textContent = formatNumber(population);
+            yearDisplayEl.textContent = year;
+
+            // Update timeline
+            const progress = (year - startYear) / (endYear - startYear);
+            timelineFillEl.style.width = `${progress * 100}%`;
+            timelineHandleEl.style.left = `${progress * 100}%`;
+
+            // Update counter color based on population
+            if (population < 1000000) {
+                counterEl.classList.add('critical');
+            } else {
+                counterEl.classList.remove('critical');
+            }
+
+            // Update events
+            document.querySelectorAll('.event').forEach(event => {
+                const eventYear = parseInt(event.dataset.year);
+                if (year >= eventYear) {
+                    event.classList.add('active');
+                } else {
+                    event.classList.remove('active');
+                }
+            });
+        }
+
+        function animate(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const elapsed = timestamp - lastTimestamp;
+
+            if (elapsed >= playSpeed) {
+                currentYear++;
+                lastTimestamp = timestamp;
+
+                if (currentYear > endYear) {
+                    stopAnimation();
+                    currentYear = endYear;
+                }
+
+                updateDisplay(currentYear);
+            }
+
+            if (isPlaying) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function startAnimation() {
+            if (currentYear >= endYear) {
+                currentYear = startYear;
+            }
+            isPlaying = true;
+            lastTimestamp = null;
+            playBtn.textContent = '⏸ Pause';
+            playBtn.classList.add('playing');
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playBtn.textContent = '▶ Play';
+            playBtn.classList.remove('playing');
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        function reset() {
+            stopAnimation();
+            currentYear = startYear;
+            updateDisplay(currentYear);
+        }
+
+        // Event listeners
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        });
+
+        resetBtn.addEventListener('click', reset);
+
+        timelineEl.addEventListener('click', (e) => {
+            const rect = timelineEl.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const progress = clickX / rect.width;
+            currentYear = Math.round(startYear + progress * (endYear - startYear));
+            updateDisplay(currentYear);
+        });
+
+        // Initialize
+        updateDisplay(currentYear);
+    </script>
+</body>
+</html>
