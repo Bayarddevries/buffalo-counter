@@ -8,17 +8,33 @@
 
 ## Overview
 
-The Buffalo Counter is a single-page interactive visualization that shows the catastrophic decline of the North American plains buffalo over the 19th century. Users can scrub through a timeline from 1800 to 1900 and watch the population collapse from 60 million to near-zero.
+The Buffalo Counter is an accessible, interactive visualization that shows the catastrophic decline of the North American plains buffalo over the 19th century. Users can scrub through a timeline from 1800 to 1900 and watch the population collapse from 60 million to near-zero.
 
 The collapse wasn't natural — it was deliberate. Commercial hunting, military campaigns, and government policy combined to destroy the foundation of Plains Indigenous life. The Métis, who depended on buffalo for food, clothing, and trade, watched their world disappear in a single lifetime.
 
 ## Features
 
 - **Live counter** — Watch the population tick down in real-time
-- **Timeline scrubber** — Drag to any year between 1800-1900
+- **Timeline scrubber** — Drag or click to any year between 1800-1900
+- **Keyboard navigation** — Full keyboard support (Arrow keys, Home, End, Space)
 - **Play/Pause** — Watch the collapse unfold automatically
-- **Historical events** — Key moments that drove the decline
+- **Touch support** — Works on mobile devices with touch gestures
+- **Historical events** — Key moments that drive the decline
 - **Visual feedback** — Counter turns red as population drops below 1 million
+- **Status indicator** — Real-time status updates for screen readers
+- **Accessible** — Full ARIA support, semantic HTML, keyboard navigation
+
+## Accessibility
+
+This project is designed with accessibility as a core principle:
+
+- **ARIA labels and live regions** — Screen readers announce changes
+- **Keyboard navigation** — Full keyboard support without a mouse
+- **Semantic HTML** — Proper landmarks and heading hierarchy
+- **Focus management** — Visible focus indicators
+- **Color contrast** — WCAG AA compliant color ratios
+- **Reduced motion** — Respects prefers-reduced-motion preference
+- **Skip link** — Allows keyboard users to skip to main content
 
 ## How It Works
 
@@ -36,12 +52,18 @@ The visualization uses linear interpolation between historical population estima
 ## Tech Stack
 
 - **Pure HTML/CSS/JavaScript** — No build step, no frameworks
+- **CSS Custom Properties** — Design tokens for theming
 - **Google Fonts** — Crimson Text (serif), Space Grotesk (sans-serif)
 - **Responsive design** — Works on mobile and desktop
+- **Accessibility** — ARIA, semantic HTML, keyboard navigation
 
 ## Running Locally
 
 ```bash
+# Clone the repository
+git clone https://github.com/Bayarddevries/buffalo-counter.git
+cd buffalo-counter
+
 # Just open the file in a browser
 open index.html
 
@@ -50,20 +72,27 @@ python3 -m http.server 8000
 # Then visit http://localhost:8000
 ```
 
+## Keyboard Shortcuts
+
+- **Arrow Left/Right** — Move timeline by 1 year (Shift + Arrow for 10 years)
+- **Home** — Jump to 1800
+- **End** — Jump to 1900
+- **Space/Enter** — Play/Pause animation
+- **Escape** — Stop animation
+
 ## Deployment
 
 Deploy to GitHub Pages:
 
 ```bash
-git init
-git add index.html
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/buffalo-counter.git
-git push -u origin main
+# The repository is already set up with GitHub Actions
+# Just push to the master branch
+git add .
+git commit -m "Your message"
+git push
 ```
 
-Then enable GitHub Pages in repo settings → source: main branch.
+The `.github/workflows/deploy.yml` workflow automatically deploys to GitHub Pages on every push to the master branch.
 
 ## Historical Context
 
@@ -86,6 +115,26 @@ The Métis people of the Red River region depended entirely on buffalo:
 - **Culture** — Buffalo hunts were central to social and spiritual life
 
 When the buffalo disappeared, Métis communities faced starvation and economic collapse. This trauma is central to Métis history and identity.
+
+## Project Structure
+
+```
+buffalo-counter/
+├── index.html              # Main HTML file
+├── styles.css              # All styles
+├── app.js                  # All JavaScript
+├── README.md               # This file
+└── .github/
+    └── workflows/
+        └── deploy.yml      # GitHub Pages deployment
+```
+
+## Browser Support
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## License
 
