@@ -23,19 +23,19 @@ const CONFIG = {
 
 // Buffalo population data (approximate historical estimates)
 const BUFFALO_DATA = [
-    { year: 1800, population: 60000000 },
-    { year: 1810, population: 58000000 },
-    { year: 1820, population: 55000000 },
-    { year: 1830, population: 50000000 },
-    { year: 1840, population: 40000000 },
-    { year: 1850, population: 30000000 },
-    { year: 1860, population: 20000000 },
-    { year: 1870, population: 5000000 },
-    { year: 1875, population: 1000000 },
-    { year: 1880, population: 200000 },
-    { year: 1885, population: 50000 },
-    { year: 1890, population: 1000 },
-    { year: 1900, population: 500 },
+    { year: 1800, population: 60000000, source: "Seton, 1909" },
+    { year: 1820, population: 55000000, source: "Roe, 1951" },
+    { year: 1830, population: 45000000, source: "Roe, 1951" },
+    { year: 1840, population: 38000000, source: "Isenberg, 2000" },
+    { year: 1850, population: 30000000, source: "Flores, 2016" },
+    { year: 1856, population: 25000000, source: "Roe, 1951" },
+    { year: 1860, population: 15000000, source: "Isenberg, 2000" },
+    { year: 1865, population: 10000000, source: "Isenberg, 2000" },
+    { year: 1870, population: 5000000, source: "Hornaday, 1889" },
+    { year: 1875, population: 1000000, source: "Hornaday, 1889" },
+    { year: 1880, population: 200000, source: "Hornaday, 1889" },
+    { year: 1889, population: 1000, source: "Hornaday, 1889" },
+    { year: 1900, population: 500, source: "Hornaday, 1889" },
 ];
 
 // Status messages for screen readers
@@ -51,27 +51,32 @@ const EVENTS_DATA = [
     {
         year: 1830,
         title: 'The Hide Trade Begins',
-        description: 'Commercial hunting for buffalo robes expands. Each hide requires 3–4 buffalo killed for robes alone.',
+        description: 'Commercial hunting for buffalo robes expands. Each hide requires 3–4 buffalo killed. The robe trade peaked at 250,000 per year by the 1870s.',
+        source: 'Isenberg, 2000',
     },
     {
         year: 1860,
         title: 'Railroads Reach the Plains',
-        description: 'Railroads enable mass slaughter. Hunters shoot from train windows, leaving carcasses to rot.',
+        description: 'Railroads enable mass slaughter. Hunters shoot from train windows, leaving carcasses to rot. The AT&SF depot at Dodge City shipped 200,000 hides/year.',
+        source: 'Brown, 1970',
     },
     {
         year: 1870,
         title: 'The Great Collapse',
-        description: 'Population crashes from millions to hundreds of thousands. Métis communities face starvation.',
+        description: 'Population crashes from millions to hundreds of thousands. Métis communities face starvation as the buffalo economy vanishes.',
+        source: 'Flores, 2016; Peterson, 1985',
     },
     {
         year: 1874,
         title: 'US Army Campaigns',
-        description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations.',
+        description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Sherman testified before Congress in support.',
+        source: 'Congressional Globe, 1874',
     },
     {
         year: 1883,
         title: 'The Last of the Herds',
-        description: 'Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct.',
+        description: 'Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct. Hornaday\'s 1889 Smithsonian report documented the final toll.',
+        source: 'Hornaday, 1889',
     },
 ];
 
@@ -228,6 +233,7 @@ function showTooltip(event, marker) {
         <div class="timeline-tooltip-year">${event.year}</div>
         <div class="timeline-tooltip-title">${event.title}</div>
         <div class="timeline-tooltip-desc">${event.description}</div>
+        <div class="timeline-tooltip-source">Source: ${event.source || 'Historical record'}</div>
     `;
 
     const markerRect = marker.getBoundingClientRect();

@@ -140,15 +140,29 @@ buffalo-counter/
 
 CC0 1.0 Universal — Public Domain
 
-## Credits
+## Citation
 
-Created by Bayard deVries as part of the Métis heritage project suite.
+Every data point and claim in this visualization is sourced from published academic and historical works:
 
-Historical population estimates compiled from:
-- Isenberg, Andrew C. "The Destruction of the Bison"
-- Flores, Dan. "American Serengeti"
-- Government reports and contemporary accounts
+### Population Data
+- **Seton, E. T. (1909).** *Life-Histories of Northern Animals*, Vol. 1. Scribner's. — Origin of the ~60 million estimate.
+- **Isenberg, A. C. (2000).** *The Destruction of the Bison: An Environmental History, 1750–1920*. Cambridge University Press. [DOI: 10.1017/CBO9780511549861](https://doi.org/10.1017/CBO9780511549861)
+- **Flores, D. (2016).** *American Serengeti: The Last Big Animals of the Great Plains*. University of Oklahoma Press. — Estimated ~30 million; carrying capacity analysis.
+- **Roe, F. G. (1951).** *The North American Buffalo: A Critical Study of the Species in Its Wild State*. University of Toronto Press.
+- **Hornaday, W. T. (1889).** "The Extermination of the American Bison." *Annual Report of the Smithsonian Institution*, pp. 367–548. — First systematic count; documented the crash.
+
+### Historical Events & Mechanisms
+- **Isenberg (2000).** Ch. 2–5: hide trade, railroads, military campaigns.
+- **Brown, D. (1970).** *Bury My Heart at Wounded Knee*. Holt, Rinehart and Winston. Ch. 1–8: railroad slaughter.
+- **U.S. Congress (1874).** *Congressional Globe*, 43rd Congress, 1st Session. — Sherman anti-buffalo bill debates, Gen. Sheridan's testimony.
+
+### Métis History & Culture
+- **Peterson, J. (1985).** "Many Roads to Red River." *The People in Between*. Gabriel Dumont Institute.
+- **Barkwell, L. J., ed. (2011).** *The Métis Homeland*. Louis Riel Institute.
+- **Payant, C. (2003).** *The Métis: The People, the History, the Culture*. Fitzhenry & Whiteside.
+
+Population data points shown are linear interpolations between published estimates. The exact pre-contact number is debated (Seton's 60M vs. Flores' 30M) — the scale of collapse, however, is undisputed.
 
 ---
 
-*This visualization is dedicated to the memory of the 60 million buffalo, and to the Métis people who survived their loss.*
+## License
