@@ -41,6 +41,35 @@ const STATUS_MESSAGES = {
     extinct: 'Functionally extinct',
 };
 
+// Historical events data
+const EVENTS_DATA = [
+    {
+        year: 1830,
+        title: 'The Hide Trade Begins',
+        description: 'Commercial hunting for buffalo robes expands. Each hide requires 3–4 buffalo killed for robes alone.',
+    },
+    {
+        year: 1860,
+        title: 'Railroads Reach the Plains',
+        description: 'Railroads enable mass slaughter. Hunters shoot from train windows, leaving carcasses to rot.',
+    },
+    {
+        year: 1870,
+        title: 'The Great Collapse',
+        description: 'Population crashes from millions to hundreds of thousands. Métis communities face starvation.',
+    },
+    {
+        year: 1874,
+        title: 'US Army Campaigns',
+        description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations.',
+    },
+    {
+        year: 1883,
+        title: 'The Last of the Herds',
+        description: 'Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct.',
+    },
+];
+
 // ===================================
 // State Management
 // ===================================
@@ -65,6 +94,8 @@ const elements = {
     timeline: document.getElementById('timeline'),
     timelineFill: document.getElementById('timelineFill'),
     timelineHandle: document.getElementById('timelineHandle'),
+    timelineEvents: document.getElementById('timelineEvents'),
+    timelineTooltip: document.getElementById('timelineTooltip'),
     playBtn: document.getElementById('playBtn'),
     resetBtn: document.getElementById('resetBtn'),
     statusIndicator: document.getElementById('statusIndicator'),
@@ -151,6 +182,125 @@ function getStatusClass(population) {
 }
 
 // ===================================
+// Timeline Event Functions
+// ===================================
+
+/**
+ * Create timeline event markers
+ */
+function createTimelineEventMarkers() {
+    try {
+        elements.timelineEvents.innerHTML = '';
+
+        EVENTS_DATA.forEach((event, index) => {
+            const marker = document.createElement('div');
+            marker.className = 'timeline-event-marker';
+            marker.dataset.year = event.year;
+            marker.dataset.index = index;
+            marker.setAttribute('tabindex', '0');
+            marker.setAttribute('role', 'button');
+            marker.setAttribute('aria-label', `${event.year}: ${event.title}`);
+            marker.setAttribute('aria-describedby', `event-desc-${index}`);
+
+            // Position marker on timeline
+            const progress = (event.year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
+            marker.style.left = `${progress * 100}%`;
+
+            // Add event listeners
+            marker.addEventListener('mouseenter', () => showTooltip(event, marker));
+            marker.addEventListener('mouseleave', hideTooltip);
+            marker.addEventListener('focus', () => showTooltip(event, marker));
+            marker.addEventListener('blur', hideTooltip);
+            marker.addEventListener('click', () => jumpToYear(event.year));
+            marker.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    jumpToYear(event.year);
+                }
+            });
+
+            elements.timelineEvents.appendChild(marker);
+        });
+    } catch (error) {
+        console.error('Error creating timeline event markers:', error);
+    }
+}
+
+/**
+ * Show tooltip for an event
+ * @param {Object} event - Event data
+ * @param {HTMLElement} marker - The marker element
+ */
+function showTooltip(event, marker) {
+    try {
+        const tooltip = elements.timelineTooltip;
+
+        tooltip.innerHTML = `
+            <div class="timeline-tooltip-year">${event.year}</div>
+            <div class="timeline-tooltip-title">${event.title}</div>
+            <div class="timeline-tooltip-desc">${event.description}</div>
+        `;
+
+        // Position tooltip above the marker
+        const markerRect = marker.getBoundingClientRect();
+        const timelineRect = elements.timeline.getBoundingClientRect();
+
+        const relativeLeft = markerRect.left - timelineRect.left + (markerRect.width / 2);
+        tooltip.style.left = `${relativeLeft}px`;
+
+        tooltip.classList.add('visible');
+        tooltip.setAttribute('aria-hidden', 'false');
+    } catch (error) {
+        console.error('Error showing tooltip:', error);
+    }
+}
+
+/**
+ * Hide tooltip
+ */
+function hideTooltip() {
+    try {
+        const tooltip = elements.timelineTooltip;
+        tooltip.classList.remove('visible');
+        tooltip.setAttribute('aria-hidden', 'true');
+    } catch (error) {
+        console.error('Error hiding tooltip:', error);
+    }
+}
+
+/**
+ * Jump to a specific year
+ * @param {number} year - The year to jump to
+ */
+function jumpToYear(year) {
+    try {
+        state.currentYear = year;
+        updateDisplay(year);
+    } catch (error) {
+        console.error('Error jumping to year:', error);
+    }
+}
+
+/**
+ * Update timeline event markers active state
+ * @param {number} year - Current year
+ */
+function updateTimelineEventMarkers(year) {
+    try {
+        const markers = elements.timelineEvents.querySelectorAll('.timeline-event-marker');
+
+        markers.forEach((marker) => {
+            const eventYear = parseInt(marker.dataset.year, 10);
+            const isActive = year >= eventYear;
+
+            marker.classList.toggle('active', isActive);
+        });
+    } catch (error) {
+        console.error('Error updating timeline event markers:', error);
+    }
+}
+
+// ===================================
 // Update Functions
 // ===================================
 
@@ -192,6 +342,9 @@ function updateDisplay(year) {
 
         // Update events
         updateEvents(year);
+
+        // Update timeline event markers
+        updateTimelineEventMarkers(year);
     } catch (error) {
         console.error('Error updating display:', error);
     }
@@ -558,6 +711,9 @@ function init() {
     try {
         // Set initial state
         state.currentYear = CONFIG.START_YEAR;
+
+        // Create timeline event markers
+        createTimelineEventMarkers();
 
         // Update display
         updateDisplay(state.currentYear);
