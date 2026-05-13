@@ -622,15 +622,22 @@ function setupSplash() {
     if (!splash || !enterBtn) return;
 
     enterBtn.addEventListener('click', () => {
-        splash.classList.add('hidden');
-        // Remove from DOM after animation
-        splash.addEventListener('transitionend', () => {
+        // Track removal so transitionend and rAF fallback can't both fire
+        let removed = false;
+        function removeSplash() {
+            if (removed) return;
+            removed = true;
             splash.remove();
-        }, { once: true });
-        // Fallback: remove after 600ms in case transitionend doesn't fire
-        setTimeout(() => {
-            if (splash.parentNode) splash.remove();
-        }, 600);
+        }
+
+        // Primary: transitionend when CSS transition finishes
+        splash.addEventListener('transitionend', removeSplash, { once: true });
+        // Fallback: rAF + delay for browsers that don't fire transitionend
+        requestAnimationFrame(() => {
+            setTimeout(removeSplash, 650);
+        });
+
+        splash.classList.add('hidden');
     });
 }
 
