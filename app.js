@@ -1,6 +1,7 @@
 /**
  * The Buffalo Counter - Main Application
  * A visualization of the Great Buffalo Collapse, 1800-1900
+ * Mobile-first responsive redesign
  */
 
 // ===================================
@@ -10,10 +11,14 @@
 const CONFIG = {
     START_YEAR: 1800,
     END_YEAR: 1900,
-    PLAY_SPEED: 2000, // milliseconds per year
+    PLAY_SPEED: {
+        slow: 3000,    // 3 seconds per year
+        normal: 2000,  // 2 seconds per year
+        fast: 500,     // 0.5 seconds per year
+    },
+    DEFAULT_SPEED: 'normal',
     CRITICAL_POPULATION: 1000000,
     WARNING_POPULATION: 10000000,
-    ANIMATION_FRAME_RATE: 60,
 };
 
 // Buffalo population data (approximate historical estimates)
@@ -80,61 +85,51 @@ const state = {
     animationId: null,
     lastTimestamp: null,
     isDragging: false,
+    speed: CONFIG.DEFAULT_SPEED,
 };
 
 // ===================================
 // DOM Elements (Cached)
 // ===================================
 
-const elements = {
-    counterValue: document.getElementById('counterValue'),
-    counter: document.getElementById('counter'),
-    yearValue: document.getElementById('yearValue'),
-    yearDisplay: document.getElementById('yearDisplay'),
-    timeline: document.getElementById('timeline'),
-    timelineFill: document.getElementById('timelineFill'),
-    timelineHandle: document.getElementById('timelineHandle'),
-    timelineEvents: document.getElementById('timelineEvents'),
-    timelineTooltip: document.getElementById('timelineTooltip'),
-    playBtn: document.getElementById('playBtn'),
-    resetBtn: document.getElementById('resetBtn'),
-    statusIndicator: document.getElementById('statusIndicator'),
-    statusDot: document.querySelector('.status-dot'),
-    statusText: document.querySelector('.status-text'),
-    eventsList: document.getElementById('eventsList'),
-    events: document.querySelectorAll('.event'),
-};
+let elements = {};
+
+function cacheElements() {
+    elements = {
+        counterValue: document.getElementById('counterValue'),
+        counter: document.getElementById('counter'),
+        yearValue: document.getElementById('yearValue'),
+        yearDisplay: document.getElementById('yearDisplay'),
+        timeline: document.getElementById('timeline'),
+        timelineFill: document.getElementById('timelineFill'),
+        timelineHandle: document.getElementById('timelineHandle'),
+        timelineEvents: document.getElementById('timelineEvents'),
+        timelineTooltip: document.getElementById('timelineTooltip'),
+        playBtn: document.getElementById('playBtn'),
+        resetBtn: document.getElementById('resetBtn'),
+        statusDot: document.querySelector('.status-dot'),
+        statusText: document.querySelector('.status-text'),
+        eventsList: document.getElementById('eventsList'),
+    };
+}
 
 // ===================================
 // Utility Functions
 // ===================================
 
-/**
- * Format a number with thousands separators
- * @param {number} num - The number to format
- * @returns {string} Formatted number string
- */
 function formatNumber(num) {
     try {
         return num.toLocaleString('en-US');
-    } catch (error) {
-        console.error('Error formatting number:', error);
+    } catch {
         return num.toString();
     }
 }
 
-/**
- * Get population for a specific year using linear interpolation
- * @param {number} year - The year to get population for
- * @returns {number} Estimated population
- */
 function getPopulationForYear(year) {
     try {
-        // Validate year is within bounds
         if (year < CONFIG.START_YEAR) year = CONFIG.START_YEAR;
         if (year > CONFIG.END_YEAR) year = CONFIG.END_YEAR;
 
-        // Find the two data points surrounding the year
         let lower = BUFFALO_DATA[0];
         let upper = BUFFALO_DATA[BUFFALO_DATA.length - 1];
 
@@ -147,21 +142,17 @@ function getPopulationForYear(year) {
         }
 
         // Linear interpolation
-        const progress = (year - lower.year) / (upper.year - lower.year);
-        const population = lower.population + (upper.population - lower.population) * progress;
+        const yearSpan = upper.year - lower.year;
+        const popSpan = upper.population - lower.population;
+        const progress = yearSpan === 0 ? 0 : (year - lower.year) / yearSpan;
+        const population = lower.population + popSpan * progress;
 
         return Math.max(0, Math.round(population));
-    } catch (error) {
-        console.error('Error calculating population:', error);
+    } catch {
         return 0;
     }
 }
 
-/**
- * Get status message based on population
- * @param {number} population - Current population
- * @returns {string} Status message
- */
 function getStatusMessage(population) {
     if (population < 1000) return STATUS_MESSAGES.extinct;
     if (population < CONFIG.CRITICAL_POPULATION) return STATUS_MESSAGES.critical;
@@ -169,481 +160,351 @@ function getStatusMessage(population) {
     return STATUS_MESSAGES.stable;
 }
 
-/**
- * Get status class based on population
- * @param {number} population - Current population
- * @returns {string} CSS class name
- */
 function getStatusClass(population) {
-    if (population < 1000) return 'critical';
     if (population < CONFIG.CRITICAL_POPULATION) return 'critical';
     if (population < CONFIG.WARNING_POPULATION) return 'warning';
     return '';
 }
 
 // ===================================
-// Timeline Event Functions
+// Timeline Event Markers
 // ===================================
 
-/**
- * Create timeline event markers
- */
 function createTimelineEventMarkers() {
-    try {
-        elements.timelineEvents.innerHTML = '';
+    elements.timelineEvents.innerHTML = '';
 
-        EVENTS_DATA.forEach((event, index) => {
-            const marker = document.createElement('div');
-            marker.className = 'timeline-event-marker';
-            marker.dataset.year = event.year;
-            marker.dataset.index = index;
-            marker.setAttribute('tabindex', '0');
-            marker.setAttribute('role', 'button');
-            marker.setAttribute('aria-label', `${event.year}: ${event.title}`);
-            marker.setAttribute('aria-describedby', `event-desc-${index}`);
+    EVENTS_DATA.forEach((event, index) => {
+        const marker = document.createElement('button');
+        marker.className = 'timeline-event-marker';
+        marker.dataset.year = event.year;
+        marker.dataset.index = index;
+        marker.setAttribute('aria-label', `${event.year}: ${event.title}`);
+        marker.setAttribute('id', `event-desc-${index}`);
 
-            // Position marker on timeline
-            const progress = (event.year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
-            marker.style.left = `${progress * 100}%`;
+        // Visible dot inside the touch target
+        const dot = document.createElement('span');
+        dot.className = 'timeline-event-dot';
+        marker.appendChild(dot);
 
-            // Add event listeners
-            marker.addEventListener('mouseenter', () => showTooltip(event, marker));
-            marker.addEventListener('mouseleave', hideTooltip);
-            marker.addEventListener('focus', () => showTooltip(event, marker));
-            marker.addEventListener('blur', hideTooltip);
-            marker.addEventListener('click', () => jumpToYear(event.year));
-            marker.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    jumpToYear(event.year);
-                }
-            });
+        const progress = (event.year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
+        marker.style.left = `${progress * 100}%`;
 
-            elements.timelineEvents.appendChild(marker);
+        marker.addEventListener('mouseenter', () => showTooltip(event, marker));
+        marker.addEventListener('mouseleave', hideTooltip);
+        marker.addEventListener('focus', () => showTooltip(event, marker));
+        marker.addEventListener('blur', hideTooltip);
+        marker.addEventListener('click', (e) => {
+            e.stopPropagation();
+            jumpToYear(event.year);
         });
-    } catch (error) {
-        console.error('Error creating timeline event markers:', error);
-    }
+        marker.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                jumpToYear(event.year);
+            }
+        });
+
+        elements.timelineEvents.appendChild(marker);
+    });
 }
 
-/**
- * Show tooltip for an event
- * @param {Object} event - Event data
- * @param {HTMLElement} marker - The marker element
- */
+function updateTimelineEventMarkers(year) {
+    const markers = elements.timelineEvents.querySelectorAll('.timeline-event-marker');
+    markers.forEach((marker) => {
+        const eventYear = parseInt(marker.dataset.year, 10);
+        marker.classList.toggle('active', year >= eventYear);
+    });
+}
+
+// ===================================
+// Tooltip
+// ===================================
+
 function showTooltip(event, marker) {
-    try {
-        const tooltip = elements.timelineTooltip;
+    const tooltip = elements.timelineTooltip;
 
-        tooltip.innerHTML = `
-            <div class="timeline-tooltip-year">${event.year}</div>
-            <div class="timeline-tooltip-title">${event.title}</div>
-            <div class="timeline-tooltip-desc">${event.description}</div>
-        `;
+    tooltip.innerHTML = `
+        <div class="timeline-tooltip-year">${event.year}</div>
+        <div class="timeline-tooltip-title">${event.title}</div>
+        <div class="timeline-tooltip-desc">${event.description}</div>
+    `;
 
-        // Position tooltip above the marker
-        const markerRect = marker.getBoundingClientRect();
-        const timelineRect = elements.timeline.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+    const timelineRect = elements.timeline.getBoundingClientRect();
+    const relativeLeft = markerRect.left - timelineRect.left + (markerRect.width / 2);
 
-        const relativeLeft = markerRect.left - timelineRect.left + (markerRect.width / 2);
-        tooltip.style.left = `${relativeLeft}px`;
+    // Constrain tooltip to stay within the timeline bounds
+    const tooltipWidth = tooltip.offsetWidth || 200;
+    const constrainedLeft = Math.max(tooltipWidth / 2, Math.min(timelineRect.width - tooltipWidth / 2, relativeLeft));
 
-        tooltip.classList.add('visible');
-        tooltip.setAttribute('aria-hidden', 'false');
-    } catch (error) {
-        console.error('Error showing tooltip:', error);
-    }
+    tooltip.style.left = `${constrainedLeft}px`;
+    tooltip.classList.add('visible');
+    tooltip.setAttribute('aria-hidden', 'false');
 }
 
-/**
- * Hide tooltip
- */
 function hideTooltip() {
-    try {
-        const tooltip = elements.timelineTooltip;
-        tooltip.classList.remove('visible');
-        tooltip.setAttribute('aria-hidden', 'true');
-    } catch (error) {
-        console.error('Error hiding tooltip:', error);
+    const tooltip = elements.timelineTooltip;
+    tooltip.classList.remove('visible');
+    tooltip.setAttribute('aria-hidden', 'true');
+}
+
+// ===================================
+// Display Update
+// ===================================
+
+function jumpToYear(year) {
+    state.currentYear = year;
+    updateDisplay(year);
+    hideTooltip();
+}
+
+function updateDisplay(year) {
+    const population = getPopulationForYear(year);
+
+    elements.counterValue.textContent = formatNumber(population);
+    elements.yearValue.textContent = year;
+
+    const progress = (year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
+    const progressPercent = Math.min(100, Math.max(0, progress * 100));
+    elements.timelineFill.style.width = `${progressPercent}%`;
+    elements.timelineHandle.style.left = `${progressPercent}%`;
+
+    elements.timeline.setAttribute('aria-valuenow', year);
+
+    // Counter color state
+    const statusClass = getStatusClass(population);
+    elements.counter.className = 'counter';
+    if (statusClass === 'critical') {
+        elements.counter.classList.add('critical');
+    }
+
+    // Status indicator
+    const statusMessage = getStatusMessage(population);
+    elements.statusText.textContent = statusMessage;
+    elements.statusDot.className = 'status-dot';
+    if (statusClass) {
+        elements.statusDot.classList.add(statusClass);
+    }
+
+    updateEvents(year);
+    updateTimelineEventMarkers(year);
+}
+
+function updateEvents(year) {
+    const events = document.querySelectorAll('.event');
+    events.forEach((event) => {
+        const eventYear = parseInt(event.dataset.year, 10);
+        const isActive = year >= eventYear;
+        event.classList.toggle('active', isActive);
+        event.setAttribute('aria-hidden', !isActive);
+    });
+}
+
+// ===================================
+// Animation
+// ===================================
+
+function animate(timestamp) {
+    if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+    const elapsed = timestamp - state.lastTimestamp;
+    const speed = CONFIG.PLAY_SPEED[state.speed];
+
+    if (elapsed >= speed) {
+        state.currentYear++;
+        state.lastTimestamp = timestamp;
+
+        if (state.currentYear > CONFIG.END_YEAR) {
+            stopAnimation();
+            state.currentYear = CONFIG.END_YEAR;
+        }
+
+        updateDisplay(state.currentYear);
+    }
+
+    if (state.isPlaying) {
+        state.animationId = requestAnimationFrame(animate);
     }
 }
 
-/**
- * Jump to a specific year
- * @param {number} year - The year to jump to
- */
-function jumpToYear(year) {
-    try {
+function startAnimation() {
+    if (state.currentYear >= CONFIG.END_YEAR) {
+        state.currentYear = CONFIG.START_YEAR;
+    }
+
+    state.isPlaying = true;
+    state.lastTimestamp = null;
+
+    elements.playBtn.setAttribute('aria-pressed', 'true');
+    elements.playBtn.setAttribute('aria-label', 'Pause animation');
+    elements.playBtn.querySelector('.btn-icon').textContent = '⏸';
+    elements.playBtn.querySelector('.btn-text').textContent = 'Pause';
+    elements.playBtn.classList.add('playing');
+
+    state.animationId = requestAnimationFrame(animate);
+}
+
+function stopAnimation() {
+    state.isPlaying = false;
+
+    elements.playBtn.setAttribute('aria-pressed', 'false');
+    elements.playBtn.setAttribute('aria-label', 'Play animation');
+    elements.playBtn.querySelector('.btn-icon').textContent = '▶';
+    elements.playBtn.querySelector('.btn-text').textContent = 'Play';
+    elements.playBtn.classList.remove('playing');
+
+    if (state.animationId) {
+        cancelAnimationFrame(state.animationId);
+        state.animationId = null;
+    }
+}
+
+function reset() {
+    stopAnimation();
+    state.currentYear = CONFIG.START_YEAR;
+    updateDisplay(state.currentYear);
+}
+
+// ===================================
+// Timeline Interaction
+// ===================================
+
+function getYearFromPosition(clientX) {
+    const rect = elements.timeline.getBoundingClientRect();
+    const progress = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(CONFIG.START_YEAR + progress * (CONFIG.END_YEAR - CONFIG.START_YEAR));
+}
+
+function handleTimelineClick(e) {
+    if (state.justDragged) {
+        state.justDragged = false;
+        return;
+    }
+    jumpToYear(getYearFromPosition(e.clientX));
+}
+
+// Mouse drag on handle
+function handleDragStart(e) {
+    state.isDragging = true;
+    state.justDragged = false;
+    elements.timelineHandle.style.cursor = 'grabbing';
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    e.preventDefault();
+}
+
+function handleDragMove(e) {
+    if (!state.isDragging) return;
+    state.justDragged = true;
+    const year = getYearFromPosition(e.clientX);
+    if (year !== state.currentYear) {
         state.currentYear = year;
         updateDisplay(year);
-    } catch (error) {
-        console.error('Error jumping to year:', error);
     }
 }
 
-/**
- * Update timeline event markers active state
- * @param {number} year - Current year
- */
-function updateTimelineEventMarkers(year) {
-    try {
-        const markers = elements.timelineEvents.querySelectorAll('.timeline-event-marker');
-
-        markers.forEach((marker) => {
-            const eventYear = parseInt(marker.dataset.year, 10);
-            const isActive = year >= eventYear;
-
-            marker.classList.toggle('active', isActive);
-        });
-    } catch (error) {
-        console.error('Error updating timeline event markers:', error);
-    }
+function handleDragEnd() {
+    state.isDragging = false;
+    elements.timelineHandle.style.cursor = 'grab';
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragEnd);
 }
 
-// ===================================
-// Update Functions
-// ===================================
+// Touch drag on timeline - does NOT prevent scroll
+function handleTouchStart(e) {
+    state.isDragging = true;
+    state.justDragged = false;
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd);
+}
 
-/**
- * Update all display elements for a given year
- * @param {number} year - The year to display
- */
-function updateDisplay(year) {
-    try {
-        const population = getPopulationForYear(year);
-
-        // Update counter
-        elements.counterValue.textContent = formatNumber(population);
-        elements.yearValue.textContent = year;
-
-        // Update timeline
-        const progress = (year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
-        const progressPercent = Math.min(100, Math.max(0, progress * 100));
-        elements.timelineFill.style.width = `${progressPercent}%`;
-        elements.timelineHandle.style.left = `${progressPercent}%`;
-
-        // Update ARIA attributes
-        elements.timeline.setAttribute('aria-valuenow', year);
-
-        // Update counter color based on population
-        const statusClass = getStatusClass(population);
-        elements.counter.className = 'counter';
-        if (statusClass === 'critical') {
-            elements.counter.classList.add('critical');
+function handleTouchMove(e) {
+    if (!state.isDragging) return;
+    const touch = e.touches[0];
+    // Only update year if touch is near the timeline (don't block page scrolling)
+    const timelineRect = elements.timeline.getBoundingClientRect();
+    const touchY = touch.clientY;
+    const isNearTimeline = touchY >= timelineRect.top - 40 && touchY <= timelineRect.bottom + 100;
+    
+    if (isNearTimeline) {
+        state.justDragged = true;
+        const year = getYearFromPosition(touch.clientX);
+        if (year !== state.currentYear) {
+            state.currentYear = year;
+            updateDisplay(year);
         }
-
-        // Update status indicator
-        const statusMessage = getStatusMessage(population);
-        elements.statusText.textContent = statusMessage;
-        elements.statusDot.className = 'status-dot';
-        if (statusClass) {
-            elements.statusDot.classList.add(statusClass);
-        }
-
-        // Update events
-        updateEvents(year);
-
-        // Update timeline event markers
-        updateTimelineEventMarkers(year);
-    } catch (error) {
-        console.error('Error updating display:', error);
     }
 }
 
-/**
- * Update event visibility based on current year
- * @param {number} year - Current year
- */
-function updateEvents(year) {
-    try {
-        elements.events.forEach((event) => {
-            const eventYear = parseInt(event.dataset.year, 10);
-            const isActive = year >= eventYear;
-
-            event.classList.toggle('active', isActive);
-            event.setAttribute('aria-hidden', !isActive);
-        });
-    } catch (error) {
-        console.error('Error updating events:', error);
-    }
+function handleTouchEnd() {
+    state.isDragging = false;
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
 }
 
-// ===================================
-// Animation Functions
-// ===================================
-
-/**
- * Animation loop for play functionality
- * @param {number} timestamp - Current timestamp from requestAnimationFrame
- */
-function animate(timestamp) {
-    try {
-        if (!state.lastTimestamp) state.lastTimestamp = timestamp;
-        const elapsed = timestamp - state.lastTimestamp;
-
-        if (elapsed >= CONFIG.PLAY_SPEED) {
-            state.currentYear++;
-            state.lastTimestamp = timestamp;
-
-            if (state.currentYear > CONFIG.END_YEAR) {
-                stopAnimation();
-                state.currentYear = CONFIG.END_YEAR;
-            }
-
-            updateDisplay(state.currentYear);
-        }
-
-        if (state.isPlaying) {
-            state.animationId = requestAnimationFrame(animate);
-        }
-    } catch (error) {
-        console.error('Animation error:', error);
-        stopAnimation();
-    }
-}
-
-/**
- * Start the animation
- */
-function startAnimation() {
-    try {
-        if (state.currentYear >= CONFIG.END_YEAR) {
-            state.currentYear = CONFIG.START_YEAR;
-        }
-
-        state.isPlaying = true;
-        state.lastTimestamp = null;
-
-        // Update play button
-        elements.playBtn.setAttribute('aria-pressed', 'true');
-        elements.playBtn.setAttribute('aria-label', 'Pause animation');
-        elements.playBtn.querySelector('.btn-icon').textContent = '⏸';
-        elements.playBtn.querySelector('.btn-text').textContent = 'Pause';
-        elements.playBtn.classList.add('playing');
-
-        state.animationId = requestAnimationFrame(animate);
-    } catch (error) {
-        console.error('Error starting animation:', error);
-    }
-}
-
-/**
- * Stop the animation
- */
-function stopAnimation() {
-    try {
-        state.isPlaying = false;
-
-        // Update play button
-        elements.playBtn.setAttribute('aria-pressed', 'false');
-        elements.playBtn.setAttribute('aria-label', 'Play animation');
-        elements.playBtn.querySelector('.btn-icon').textContent = '▶';
-        elements.playBtn.querySelector('.btn-text').textContent = 'Play';
-        elements.playBtn.classList.remove('playing');
-
-        if (state.animationId) {
-            cancelAnimationFrame(state.animationId);
-            state.animationId = null;
-        }
-    } catch (error) {
-        console.error('Error stopping animation:', error);
-    }
-}
-
-/**
- * Reset to initial state
- */
-function reset() {
-    try {
-        stopAnimation();
-        state.currentYear = CONFIG.START_YEAR;
-        updateDisplay(state.currentYear);
-    } catch (error) {
-        console.error('Error resetting:', error);
-    }
-}
-
-// ===================================
-// Timeline Interaction Functions
-// ===================================
-
-/**
- * Handle timeline click
- * @param {MouseEvent} e - Click event
- */
-function handleTimelineClick(e) {
-    try {
-        if (state.isDragging) return; // Don't process click if we're dragging
-
-        const rect = elements.timeline.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const progress = Math.max(0, Math.min(1, clickX / rect.width));
-        state.currentYear = Math.round(
-            CONFIG.START_YEAR + progress * (CONFIG.END_YEAR - CONFIG.START_YEAR)
-        );
-        updateDisplay(state.currentYear);
-    } catch (error) {
-        console.error('Error handling timeline click:', error);
-    }
-}
-
-/**
- * Handle timeline drag start
- * @param {MouseEvent} e - Mouse down event
- */
-function handleTimelineDragStart(e) {
-    try {
-        state.isDragging = true;
-        elements.timelineHandle.style.cursor = 'grabbing';
-        document.addEventListener('mousemove', handleTimelineDrag);
-        document.addEventListener('mouseup', handleTimelineDragEnd);
-        e.preventDefault();
-    } catch (error) {
-        console.error('Error starting timeline drag:', error);
-    }
-}
-
-/**
- * Handle timeline drag
- * @param {MouseEvent} e - Mouse move event
- */
-function handleTimelineDrag(e) {
-    try {
-        if (!state.isDragging) return;
-
-        const rect = elements.timeline.getBoundingClientRect();
-        const dragX = e.clientX - rect.left;
-        const progress = Math.max(0, Math.min(1, dragX / rect.width));
-        state.currentYear = Math.round(
-            CONFIG.START_YEAR + progress * (CONFIG.END_YEAR - CONFIG.START_YEAR)
-        );
-        updateDisplay(state.currentYear);
-    } catch (error) {
-        console.error('Error handling timeline drag:', error);
-    }
-}
-
-/**
- * Handle timeline drag end
- */
-function handleTimelineDragEnd() {
-    try {
-        state.isDragging = false;
-        elements.timelineHandle.style.cursor = 'grab';
-        document.removeEventListener('mousemove', handleTimelineDrag);
-        document.removeEventListener('mouseup', handleTimelineDragEnd);
-    } catch (error) {
-        console.error('Error ending timeline drag:', error);
-    }
-}
-
-/**
- * Handle keyboard navigation on timeline
- * @param {KeyboardEvent} e - Keyboard event
- */
+// Keyboard navigation
 function handleTimelineKeydown(e) {
-    try {
-        const step = e.shiftKey ? 10 : 1; // Shift for larger jumps
+    const step = e.shiftKey ? 10 : 1;
 
-        switch (e.key) {
-            case 'ArrowLeft':
-                e.preventDefault();
-                state.currentYear = Math.max(CONFIG.START_YEAR, state.currentYear - step);
-                updateDisplay(state.currentYear);
-                break;
-            case 'ArrowRight':
-                e.preventDefault();
-                state.currentYear = Math.min(CONFIG.END_YEAR, state.currentYear + step);
-                updateDisplay(state.currentYear);
-                break;
-            case 'Home':
-                e.preventDefault();
-                state.currentYear = CONFIG.START_YEAR;
-                updateDisplay(state.currentYear);
-                break;
-            case 'End':
-                e.preventDefault();
-                state.currentYear = CONFIG.END_YEAR;
-                updateDisplay(state.currentYear);
-                break;
-            case ' ':
-            case 'Enter':
-                e.preventDefault();
-                if (state.isPlaying) {
-                    stopAnimation();
-                } else {
-                    startAnimation();
-                }
-                break;
-        }
-    } catch (error) {
-        console.error('Error handling keyboard navigation:', error);
+    switch (e.key) {
+        case 'ArrowLeft':
+            e.preventDefault();
+            state.currentYear = Math.max(CONFIG.START_YEAR, state.currentYear - step);
+            updateDisplay(state.currentYear);
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            state.currentYear = Math.min(CONFIG.END_YEAR, state.currentYear + step);
+            updateDisplay(state.currentYear);
+            break;
+        case 'Home':
+            e.preventDefault();
+            state.currentYear = CONFIG.START_YEAR;
+            updateDisplay(state.currentYear);
+            break;
+        case 'End':
+            e.preventDefault();
+            state.currentYear = CONFIG.END_YEAR;
+            updateDisplay(state.currentYear);
+            break;
+        case ' ':
+        case 'Enter':
+            e.preventDefault();
+            if (state.isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+            break;
     }
 }
 
 // ===================================
-// Touch Support for Mobile
+// Speed Control
 // ===================================
 
-/**
- * Handle touch start on timeline
- * @param {TouchEvent} e - Touch event
- */
-function handleTimelineTouchStart(e) {
-    try {
-        state.isDragging = true;
-        elements.timelineHandle.style.cursor = 'grabbing';
-        document.addEventListener('touchmove', handleTimelineTouchMove, { passive: false });
-        document.addEventListener('touchend', handleTimelineTouchEnd);
-    } catch (error) {
-        console.error('Error handling touch start:', error);
-    }
-}
+function handleSpeedChange(e) {
+    const btn = e.target.closest('.speed-btn');
+    if (!btn) return;
 
-/**
- * Handle touch move on timeline
- * @param {TouchEvent} e - Touch event
- */
-function handleTimelineTouchMove(e) {
-    try {
-        if (!state.isDragging) return;
-        e.preventDefault(); // Prevent scrolling while dragging
+    const newSpeed = btn.dataset.speed;
+    if (newSpeed === state.speed) return;
 
-        const touch = e.touches[0];
-        const rect = elements.timeline.getBoundingClientRect();
-        const touchX = touch.clientX - rect.left;
-        const progress = Math.max(0, Math.min(1, touchX / rect.width));
-        state.currentYear = Math.round(
-            CONFIG.START_YEAR + progress * (CONFIG.END_YEAR - CONFIG.START_YEAR)
-        );
-        updateDisplay(state.currentYear);
-    } catch (error) {
-        console.error('Error handling touch move:', error);
-    }
-}
+    state.speed = newSpeed;
 
-/**
- * Handle touch end on timeline
- */
-function handleTimelineTouchEnd() {
-    try {
-        state.isDragging = false;
-        elements.timelineHandle.style.cursor = 'grab';
-        document.removeEventListener('touchmove', handleTimelineTouchMove);
-        document.removeEventListener('touchend', handleTimelineTouchEnd);
-    } catch (error) {
-        console.error('Error handling touch end:', error);
-    }
+    // Update active state
+    document.querySelectorAll('.speed-btn').forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-checked', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-checked', 'true');
 }
 
 // ===================================
-// Page Visibility API
+// Page Visibility
 // ===================================
 
-/**
- * Handle page visibility change
- * Pause animation when tab is not visible
- */
 function handleVisibilityChange() {
     if (document.hidden && state.isPlaying) {
         stopAnimation();
@@ -655,79 +516,63 @@ function handleVisibilityChange() {
 // ===================================
 
 function setupEventListeners() {
-    try {
-        // Play/Pause button
-        elements.playBtn.addEventListener('click', () => {
+    // Play/Pause button
+    elements.playBtn.addEventListener('click', () => {
+        if (state.isPlaying) {
+            stopAnimation();
+        } else {
+            startAnimation();
+        }
+    });
+
+    // Reset button
+    elements.resetBtn.addEventListener('click', reset);
+
+    // Timeline click
+    elements.timeline.addEventListener('click', handleTimelineClick);
+
+    // Timeline drag (mouse) on handle
+    elements.timelineHandle.addEventListener('mousedown', handleDragStart);
+
+    // Touch support on entire timeline - passive, doesn't block scroll
+    elements.timeline.addEventListener('touchstart', handleTouchStart, { passive: true });
+
+    // Keyboard navigation
+    elements.timeline.addEventListener('keydown', handleTimelineKeydown);
+
+    // Speed control
+    document.querySelector('.speed-selector').addEventListener('click', handleSpeedChange);
+
+    // Page visibility
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON' && document.activeElement !== elements.timeline) {
+            e.preventDefault();
             if (state.isPlaying) {
                 stopAnimation();
             } else {
                 startAnimation();
             }
-        });
-
-        // Reset button
-        elements.resetBtn.addEventListener('click', reset);
-
-        // Timeline click
-        elements.timeline.addEventListener('click', handleTimelineClick);
-
-        // Timeline drag (mouse)
-        elements.timelineHandle.addEventListener('mousedown', handleTimelineDragStart);
-
-        // Timeline keyboard navigation
-        elements.timeline.addEventListener('keydown', handleTimelineKeydown);
-
-        // Timeline touch support
-        elements.timeline.addEventListener('touchstart', handleTimelineTouchStart, { passive: true });
-
-        // Page visibility
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Space to play/pause (when not focused on interactive elements)
-            if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON' && document.activeElement !== elements.timeline) {
-                e.preventDefault();
-                if (state.isPlaying) {
-                    stopAnimation();
-                } else {
-                    startAnimation();
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error setting up event listeners:', error);
-    }
+        }
+    });
 }
 
 // ===================================
 // Initialization
 // ===================================
 
-/**
- * Initialize the application
- */
 function init() {
-    try {
-        // Set initial state
-        state.currentYear = CONFIG.START_YEAR;
+    cacheElements();
+    state.currentYear = CONFIG.START_YEAR;
+    state.speed = CONFIG.DEFAULT_SPEED;
 
-        // Create timeline event markers
-        createTimelineEventMarkers();
-
-        // Update display
-        updateDisplay(state.currentYear);
-
-        // Setup event listeners
-        setupEventListeners();
-
-        console.log('The Buffalo Counter initialized successfully');
-    } catch (error) {
-        console.error('Error initializing application:', error);
-    }
+    createTimelineEventMarkers();
+    updateDisplay(state.currentYear);
+    setupEventListeners();
 }
 
-// Start the application when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {

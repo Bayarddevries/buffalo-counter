@@ -19,24 +19,26 @@
             <p class="subtitle">A visualization of the Great Buffalo Collapse, 1800–1900</p>
         </header>
 
-        <section class="visualization" aria-label="Buffalo population counter">
-            <div class="year-display" id="yearDisplay" aria-live="polite" aria-atomic="true">
-                <span class="year-label">Year</span>
-                <span class="year-value" id="yearValue">1800</span>
-            </div>
-
-            <div class="counter-wrapper">
-                <div class="counter" id="counter" aria-live="polite" aria-atomic="true">
-                    <span class="counter-value" id="counterValue">60,000,000</span>
+        <div class="sticky-counter" aria-label="Buffalo population counter">
+            <section class="visualization">
+                <div class="year-display" id="yearDisplay" aria-live="polite" aria-atomic="true">
+                    <span class="year-label">Year</span>
+                    <span class="year-value" id="yearValue">1800</span>
                 </div>
-                <div class="counter-label">Plains Buffalo</div>
-            </div>
 
-            <div class="status-indicator" id="statusIndicator" aria-live="polite" aria-atomic="true">
-                <span class="status-dot"></span>
-                <span class="status-text">Population stable</span>
-            </div>
-        </section>
+                <div class="counter-wrapper">
+                    <div class="counter" id="counter" aria-live="polite" aria-atomic="true">
+                        <span class="counter-value" id="counterValue">60,000,000</span>
+                    </div>
+                    <div class="counter-label">Plains Buffalo</div>
+                </div>
+
+                <div class="status-indicator" id="statusIndicator" aria-live="polite" aria-atomic="true">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Population stable</span>
+                </div>
+            </section>
+        </div>
 
         <section class="timeline-section" aria-label="Timeline controls">
             <div class="timeline-container">
@@ -50,8 +52,18 @@
                     aria-valuenow="1800"
                     tabindex="0"
                 >
-                    <div class="timeline-fill" id="timelineFill"></div>
-                    <div class="timeline-handle" id="timelineHandle" aria-hidden="true"></div>
+                    <div class="timeline-track">
+                        <div class="timeline-fill" id="timelineFill"></div>
+                    </div>
+                    <button
+                        class="timeline-handle"
+                        id="timelineHandle"
+                        type="button"
+                        aria-label="Drag to change year"
+                        aria-hidden="true"
+                    >
+                        <span class="timeline-handle-dot"></span>
+                    </button>
                     <div class="timeline-events" id="timelineEvents" aria-hidden="true"></div>
                 </div>
                 <div class="timeline-tooltip" id="timelineTooltip" role="tooltip" aria-hidden="true"></div>
@@ -80,6 +92,11 @@
                     <span class="btn-icon">↺</span>
                     <span class="btn-text">Reset</span>
                 </button>
+                <div class="speed-selector" role="radiogroup" aria-label="Animation speed">
+                    <button class="speed-btn" data-speed="slow" role="radio" aria-checked="false" type="button">Slow</button>
+                    <button class="speed-btn active" data-speed="normal" role="radio" aria-checked="true" type="button">Normal</button>
+                    <button class="speed-btn" data-speed="fast" role="radio" aria-checked="false" type="button">Fast</button>
+                </div>
             </div>
         </section>
 
