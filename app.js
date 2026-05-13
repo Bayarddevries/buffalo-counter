@@ -77,8 +77,6 @@ const EVENTS_DATA = [
         title: 'US Army Campaigns',
         description: 'Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Philip Sheridan championed this policy before Congress.',
         source: 'Congressional Globe, 1874',
-        image: 'images/metis-brigades.jpg',
-        imageCaption: 'Métis buffalo brigades, the organized hunting parties that sustained communities across the Plains.',
     },
     {
         year: 1883,
@@ -615,6 +613,28 @@ function setupSourcesToggle() {
 }
 
 // ===================================
+// Splash / Intro Overlay
+// ===================================
+
+function setupSplash() {
+    const splash = document.getElementById('splash');
+    const enterBtn = document.getElementById('splashEnter');
+    if (!splash || !enterBtn) return;
+
+    enterBtn.addEventListener('click', () => {
+        splash.classList.add('hidden');
+        // Remove from DOM after animation
+        splash.addEventListener('transitionend', () => {
+            splash.remove();
+        }, { once: true });
+        // Fallback: remove after 600ms in case transitionend doesn't fire
+        setTimeout(() => {
+            if (splash.parentNode) splash.remove();
+        }, 600);
+    });
+}
+
+// ===================================
 // Initialization
 // ===================================
 
@@ -627,6 +647,7 @@ function init() {
     updateDisplay(state.currentYear);
     setupEventListeners();
     setupSourcesToggle();
+    setupSplash();
 }
 
 if (document.readyState === 'loading') {

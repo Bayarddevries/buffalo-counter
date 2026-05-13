@@ -13,6 +13,38 @@
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
+    <!-- Splash / Intro Overlay -->
+    <div class="splash" id="splash" role="dialog" aria-modal="true" aria-label="Introduction">
+        <div class="splash-inner">
+            <h1 class="splash-title">The Buffalo Counter</h1>
+            <p class="splash-subtitle">A visualization of the Great Buffalo Collapse, 1800–1900</p>
+
+            <figure class="splash-image">
+                <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas">
+                <figcaption>Rath & Wright's buffalo hide yard, 1878 — 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
+            </figure>
+
+            <div class="splash-text">
+                <p>
+                    <strong>In 1800, an estimated 60 million buffalo</strong> roamed the North American plains.
+                    By 1900, fewer than <strong>1,000 remained</strong>.
+                </p>
+                <p>
+                    This collapse wasn't natural. It was deliberate — commercial hunting, military campaigns,
+                    and government policy combined to destroy the foundation of Plains Indigenous life.
+                </p>
+                <p>
+                    The Métis, who depended on buffalo for food, clothing, and trade, watched their world
+                    disappear in a single lifetime.
+                </p>
+            </div>
+
+            <button class="splash-enter" id="splashEnter" type="button">
+                Explore the Counter
+            </button>
+        </div>
+    </div>
+
     <main id="main-content" class="container">
         <header>
             <h1>The Buffalo Counter</h1>
@@ -136,10 +168,6 @@
                 <article class="event" data-year="1874" aria-hidden="true">
                     <div class="event-year">1874</div>
                     <h3 class="event-title">US Army Campaigns</h3>
-                    <figure class="event-image">
-                        <img src="images/metis-brigades.jpg" alt="Métis buffalo brigades, the organized hunting parties that sustained communities across the Plains" loading="lazy">
-                        <figcaption>Métis buffalo brigades, the organized hunting parties that sustained communities across the Plains.</figcaption>
-                    </figure>
                     <p class="event-desc">Military strategy: destroy buffalo to force Indigenous peoples onto reservations. Gen. Philip Sheridan championed this policy before Congress.<sup><a href="#src-congressional1874">[5]</a></sup></p>
                 </article>
 
@@ -153,28 +181,6 @@
                     <p class="event-desc">Fewer than 1,000 buffalo remain in the wild. The species is functionally extinct. Hornaday's 1889 Smithsonian report documented the final toll.<sup><a href="#src-hornaday1889">[6]</a></sup></p>
                 </article>
             </div>
-        </section>
-
-        <section class="context" aria-label="Historical context">
-            <h2>Historical Context</h2>
-            <figure class="context-image">
-                <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas" loading="lazy">
-                <figcaption>Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
-            </figure>
-            <p>
-                <strong>In 1800, an estimated 60 million buffalo</strong> roamed the North American plains.<sup id="ref-in-1800"><a href="#src-seton1909">[Seton, 1909]</a></sup>
-                By 1900, fewer than <strong>1,000 remained</strong>.<sup id="ref-in-1900"><a href="#src-hornaday1889">[Hornaday, 1889]</a></sup>
-            </p>
-            <p>
-                This collapse wasn't natural. It was deliberate — commercial hunting, military campaigns,
-                and government policy combined to destroy the foundation of Plains Indigenous life.
-                <sup id="ref-deliberate"><a href="#src-isenberg2000">[Isenberg, 2000]</a></sup>
-            </p>
-            <p>
-                The Métis, who depended on buffalo for food, clothing, and trade, watched their world
-                disappear in a single lifetime.
-                <sup id="ref-metis"><a href="#src-peterson1985">[Peterson, 1985]</a></sup>
-            </p>
         </section>
 
         <footer>
