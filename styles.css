@@ -308,7 +308,7 @@ body {
 .cards-section {
     scroll-snap-type: y mandatory;
     overflow-y: auto;
-    min-height: 100vh;
+    height: 100vh;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
 }
