@@ -571,7 +571,7 @@ body {
 
     .splash-text p {
         font-size: 1rem;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
     }
 
     .splash-enter {
@@ -595,6 +595,37 @@ body {
     .sources-panel li {
         font-size: 0.78rem;
         line-height: 1.5;
+    }
+
+    .card {
+        justify-content: flex-start;
+        padding: 1.25rem 1rem;
+        min-height: calc(100vh - var(--counter-height) - 60px);
+    }
+
+    .card-year {
+        font-size: clamp(2rem, 7vw, 3rem);
+        margin-bottom: 0.15rem;
+    }
+
+    .card-title {
+        font-size: clamp(1rem, 3.5vw, 1.3rem);
+        margin-bottom: 0.65rem;
+        line-height: 1.2;
+    }
+
+    .card-image {
+        margin-bottom: 0.5rem;
+    }
+
+    .card-image img {
+        max-height: 170px;
+        object-fit: cover;
+    }
+
+    .card-text {
+        font-size: clamp(1rem, 3vw, 1.1rem);
+        line-height: 1.55;
     }
 
     .footer {
