@@ -1,413 +1,262 @@
-/**
- * The Buffalo Counter - Main Application
- * Option D layout with scroll-snap event cards
- * Schedule-driven animation, log-linear population model
- */
-
 // ===================================
-// Constants
+// Data
 // ===================================
 
-const CONFIG = {
-    START_YEAR: 1800,
-    END_YEAR: 1900,
-    SPEED_MS: { slow: 3000, normal: 2000, fast: 500 },
-    DEFAULT_SPEED: 'normal',
-    CARD_INTERVAL: 8000, // ms between event card activations
+// Authoritative population data
+const DATA_POINTS = [
+    { year: 1800, pop: 30000000 },
+    { year: 1850, pop: 20000000 },
+    { year: 1865, pop: 13500000 },
+    { year: 1870, pop: 5500000 },
+    { year: 1880, pop: 395000 },
+    { year: 1889, pop: 653 },
+    { year: 1900, pop: 500 },
+];
+
+const EVENT_YEARS = [1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900];
+
+const STATUS = {
+    green: 'Population stable',
+    declining: 'Population declining',
+    warning: 'At risk',
+    critical: 'Near extinction',
+    extinct: 'Functionally extinct',
 };
-
-const POP_POINTS = [
-    { y: 1800, p: 30000000 },
-    { y: 1850, p: 20000000 },
-    { y: 1865, p: 13500000 },
-    { y: 1870, p: 5500000 },
-    { y: 1880, p: 395000 },
-    { y: 1889, p: 653 },
-    { y: 1900, p: 500 },
-];
-
-const EVENTS = [
-    { year: 1830, title: 'The Hide Trade Begins',   source: 'Isenberg, 2000', index: 0 },
-    { year: 1860, title: 'Railroads Reach the Plains', source: 'Brown, 1970', index: 1 },
-    { year: 1870, title: 'The Great Collapse',       source: 'Flores, 2016; Peterson, 1985', index: 2 },
-    { year: 1874, title: 'US Army Campaigns',        source: 'Congressional Globe, 1874', index: 3 },
-    { year: 1883, title: 'The Last of the Herds',    source: 'Hornaday, 1889', index: 4 },
-];
-
-// Schedule: animation time (ms) -> year
-const SCHEDULE = [{ time: 0, year: CONFIG.START_YEAR }];
-EVENTS.forEach((evt) => {
-    SCHEDULE.push({ time: (evt.index + 1) * CONFIG.CARD_INTERVAL, year: evt.year });
-});
-SCHEDULE.push({ time: EVENTS.length * CONFIG.CARD_INTERVAL, year: CONFIG.END_YEAR });
-const TOTAL_DURATION = SCHEDULE[SCHEDULE.length - 1].time;
 
 // ===================================
 // State
 // ===================================
+let currentYear = 1800;
+let currentPop = 30000000;
+let activeCardIndex = 0;
+let ticking = false;
 
-let isPlaying = false;
-let animStart = 0;
-let pausedMs = 0;
-let rafId = null;
-let speed = CONFIG.DEFAULT_SPEED;
-let activeSet = new Set();
-let lastScrollIdx = -1;
+// ===================================
+// DOM refs
+// ===================================
+const $year = document.getElementById('counterYear');
+const $pop = document.getElementById('counterValue');
+const $status = document.getElementById('counterStatus');
+const $fill = document.getElementById('timelineFill');
+const $dots = document.getElementById('timelineDots');
+const $prompt = document.getElementById('scrollPrompt');
+const $cards = document.querySelectorAll('.card[data-year]');
+const $section = document.getElementById('cardsSection');
 
-// DOM cache
-const E = {};
-
-function $(sel) { return document.querySelector(sel); }
-function $$(sel) { return document.querySelectorAll(sel); }
-
-function cache() {
-    E.counterNum   = $('.counter-num');
-    E.yearValue    = $('#yearValue');
-    E.tlFill       = $('#tlFill');
-    E.tlDots       = $('#tlDots');
-    E.tlBar        = $('#timeline');
-    E.playBtn      = $('#playBtn');
-    E.resetBtn     = $('#resetBtn');
-    E.statusDot    = $('#statusDot');
-    E.statusText   = $('#statusText');
-    E.snap         = $('#eventsSnap');
-    E.counterFixed = $('#counterFixed');
+// ===================================
+// Utility
+// ===================================
+function formatNumber(n) {
+    try { return n.toLocaleString('en-US'); }
+    catch { return String(n); }
 }
 
-// ===================================
-// Math helpers
-// ===================================
+function interpolatePop(year) {
+    if (year <= DATA_POINTS[0].year) return DATA_POINTS[0].pop;
+    if (year >= DATA_POINTS[DATA_POINTS.length - 1].year) return DATA_POINTS[DATA_POINTS.length - 1].pop;
 
-function getPop(year) {
-    year = Math.max(CONFIG.START_YEAR, Math.min(CONFIG.END_YEAR, year));
-    for (let i = 0; i < POP_POINTS.length - 1; i++) {
-        if (year >= POP_POINTS[i].y && year <= POP_POINTS[i+1].y) {
-            const t = (year - POP_POINTS[i].y) / (POP_POINTS[i+1].y - POP_POINTS[i].y);
-            const lp = Math.log(POP_POINTS[i].p) + t * (Math.log(POP_POINTS[i+1].p) - Math.log(POP_POINTS[i].p));
-            return Math.max(500, Math.round(Math.exp(lp)));
+    for (let i = 0; i < DATA_POINTS.length - 1; i++) {
+        if (year >= DATA_POINTS[i].year && year <= DATA_POINTS[i + 1].year) {
+            if (year === DATA_POINTS[i].year) return DATA_POINTS[i].pop;
+            if (year === DATA_POINTS[i + 1].year) return DATA_POINTS[i + 1].pop;
+            const t = (year - DATA_POINTS[i].year) / (DATA_POINTS[i + 1].year - DATA_POINTS[i].year);
+            return Math.round(DATA_POINTS[i].pop + t * (DATA_POINTS[i + 1].pop - DATA_POINTS[i].pop));
         }
     }
-    return year <= POP_POINTS[0].y ? POP_POINTS[0].p : POP_POINTS[POP_POINTS.length-1].p;
+    return 0;
 }
 
-function yearAtTime(ms) {
-    for (let i = 0; i < SCHEDULE.length - 1; i++) {
-        if (ms >= SCHEDULE[i].time && ms <= SCHEDULE[i+1].time) {
-            const t = (ms - SCHEDULE[i].time) / (SCHEDULE[i+1].time - SCHEDULE[i].time);
-            return SCHEDULE[i].year + (SCHEDULE[i+1].year - SCHEDULE[i].year) * t;
-        }
-    }
-    return CONFIG.END_YEAR;
-}
-
-function progress(year) {
-    return (year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
-}
-
-// ===================================
-// Render
-// ===================================
-
-function render(year) {
-    const pop = getPop(year);
-    const yr  = Math.round(year);
-    const p   = progress(year);
-
-    if (E.yearValue)  E.yearValue.textContent = yr;
-    if (E.counterNum) E.counterNum.textContent = pop.toLocaleString('en-US');
-    if (E.tlFill)     E.tlFill.style.width = (p * 100) + '%';
-
-    // status colours
-    E.statusDot.classList.remove('warning','critical');
-    E.counterNum?.parentElement?.classList?.remove('warning','critical');
-    if (p > 0.6) {
-        E.statusDot.classList.add('critical');
-        E.counterNum?.parentElement?.classList?.add('critical');
-        E.statusText.textContent = 'Critical decline';
-    } else if (p > 0.35) {
-        E.statusDot.classList.add('warning');
-        E.counterNum?.parentElement?.classList?.add('warning');
-        E.statusText.textContent = 'Population declining';
-    } else {
-        E.statusText.textContent = 'Population stable';
-    }
-
-    // timeline dots
-    $$(' .tl-dot').forEach(d => {
-        const dy = +d.dataset.year;
-        d.classList.remove('passed','active');
-        if (dy < yr) d.classList.add('passed');
-        else if (dy === yr) d.classList.add('active');
-    });
-
-    // card activation (one-way: once active stays active)
-    $$('.event-card').forEach(c => {
-        const idx = +c.dataset.index;
-        if (yr >= EVENTS[idx]?.year && !activeSet.has(idx)) {
-            activeSet.add(idx);
-            c.classList.add('active');
-        }
-    });
-
-    // auto-scroll to latest active card during playback
-    let latest = -1;
-    activeSet.forEach(i => { if (i > latest) latest = i; });
-    if (latest >= 0 && latest !== lastScrollIdx && E.snap) {
-        lastScrollIdx = latest;
-        const card = $$(`.event-card[data-index="${latest}"]`)[0];
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+function getStatus(pop) {
+    if (pop < 1000) return 'extinct';
+    if (pop < 100000) return 'critical';
+    if (pop < 1000000) return 'warning';
+    if (pop < 10000000) return 'declining';
+    return 'green';
 }
 
 // ===================================
 // Timeline dots
 // ===================================
-
-function buildDots() {
-    if (!E.tlDots) return;
-    E.tlDots.innerHTML = '';
-    EVENTS.forEach(evt => {
-        const pct = ((evt.year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR)) * 100;
-        const dot = document.createElement('button');
-        dot.className = 'tl-dot';
-        dot.style.left = pct + '%';
-        dot.dataset.year = evt.year;
-        dot.setAttribute('aria-label', evt.year + ': ' + evt.title);
-        dot.addEventListener('click', (e) => { e.stopPropagation(); jump(evt.year); });
-        E.tlDots.appendChild(dot);
+function createTimelineDots() {
+    $dots.innerHTML = '';
+    EVENT_YEARS.forEach((year, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'timeline-dot' + (i === 0 ? ' active' : '');
+        dot.dataset.index = i;
+        $dots.appendChild(dot);
     });
 }
 
 // ===================================
-// Playback
+// Update display from year
 // ===================================
+function updateFromYear(year) {
+    currentYear = Math.round(year);
+    currentPop = interpolatePop(currentYear);
 
-function tick(ts) {
-    if (!animStart) animStart = ts;
-    const elapsed = ts - animStart + pausedMs;
+    // Counter
+    $year.textContent = currentYear;
+    $pop.textContent = formatNumber(currentPop);
 
-    if (elapsed >= TOTAL_DURATION) {
-        render(CONFIG.END_YEAR);
-        EVENTS.forEach(e => {
-            if (!activeSet.has(e.index)) {
-                activeSet.add(e.index);
-                const c = $(`.event-card[data-index="${e.index}"]`);
-                if (c) c.classList.add('active');
+    // Counter color: green -> yellow -> red -> dark red
+    const st = getStatus(currentPop);
+    $pop.className = 'counter-value';
+    if (st === 'extinct' || st === 'critical') $pop.classList.add('critical');
+    else if (st === 'warning') $pop.classList.add('declining');
+    else if (st === 'declining') $pop.classList.add('warning');
+
+    // Status text
+    $status.textContent = STATUS[st];
+
+    // Timeline fill
+    const progress = (currentYear - 1800) / (1900 - 1800);
+    $fill.style.width = Math.min(100, Math.max(0, progress * 100)) + '%';
+
+    // Timeline dots
+    const dots = $dots.querySelectorAll('.timeline-dot');
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', currentYear >= EVENT_YEARS[i]);
+    });
+}
+
+// ===================================
+// Card activation via IntersectionObserver
+// ===================================
+function setupCardObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const card = entry.target;
+            const year = parseInt(card.dataset.year, 10);
+
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                card.classList.add('active');
+                updateFromYear(year);
+
+                // Hide scroll prompt after first scroll
+                if ($prompt) $prompt.style.display = 'none';
+            } else {
+                card.classList.remove('active');
             }
         });
-        stop();
-        return;
-    }
+    }, {
+        root: $section,
+        threshold: 0.5,
+    });
 
-    render(yearAtTime(elapsed));
-    rafId = requestAnimationFrame(tick);
-}
-
-function play() {
-    if (isPlaying) return;
-    isPlaying = true;
-    animStart = 0;
-    pausedMs = 0;
-    rafId = null;
-    lastScrollIdx = -1;
-    E.playBtn.classList.add('playing');
-    E.playBtn.querySelector('.btn-icon').textContent = '❚❚';
-    E.playBtn.querySelector('.btn-text').textContent = 'Pause';
-    rafId = requestAnimationFrame(tick);
-}
-
-function stop() {
-    isPlaying = false;
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    pausedMs += (animStart ? performance.now() - animStart : 0);
-    animStart = 0;
-    E.playBtn.classList.remove('playing');
-    E.playBtn.querySelector('.btn-icon').textContent = '▶';
-    E.playBtn.querySelector('.btn-text').textContent = 'Play';
-}
-
-function toggle() {
-    if (pausedMs >= TOTAL_DURATION) { reset(); return play(); }
-    if (isPlaying) stop(); else play();
-}
-
-function reset() {
-    stop();
-    pausedMs = 0;
-    animStart = 0;
-    activeSet.clear();
-    lastScrollIdx = -1;
-    $$('.event-card').forEach(c => c.classList.remove('active'));
-    render(CONFIG.START_YEAR);
-    if (E.snap) E.snap.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-function jump(year) {
-    stop();
-    const frac = (year - CONFIG.START_YEAR) / (CONFIG.END_YEAR - CONFIG.START_YEAR);
-    pausedMs = frac * TOTAL_DURATION;
-    EVENTS.forEach(e => { if (year >= e.year) activeSet.add(e.index); });
-    lastScrollIdx = -5; // force re-scroll on next play
-    render(year);
+    $cards.forEach(card => observer.observe(card));
 }
 
 // ===================================
-// Timeline drag
+// Smooth counter interpolation during scroll
+// Between cards the counter interpolates smoothly
 // ===================================
-
-function yearFromX(cx) {
-    const r = E.tlBar.getBoundingClientRect();
-    const p = Math.max(0, Math.min(1, (cx - r.left) / r.width));
-    return Math.round(CONFIG.START_YEAR + p * (CONFIG.END_YEAR - CONFIG.START_YEAR));
+function setupScrollInterpolation() {
+    $section.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                updateFromScroll();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
 }
 
-let dragging = false;
+function updateFromScroll() {
+    const sectionRect = $section.getBoundingClientRect();
+    const sectionTop = sectionRect.top;
+    const sectionHeight = sectionRect.height;
+    const viewportCenter = sectionTop + sectionHeight / 2;
 
-function dragStart(e) {
-    dragging = true;
-    if (isPlaying) stop();
-    document.addEventListener('mousemove', dragMove);
-    document.addEventListener('mouseup', dragEnd);
-    e.preventDefault();
-}
-function dragMove(e) { if (dragging) jump(yearFromX(e.clientX)); }
-function dragEnd()  { dragging = false; document.removeEventListener('mousemove', dragMove); document.removeEventListener('mouseup', dragEnd); }
+    // Find which two cards the viewport center is between
+    let topCard = null;
+    let bottomCard = null;
 
-function touchStart() {
-    dragging = true;
-    if (isPlaying) stop();
-    document.addEventListener('touchmove', touchMove, { passive: true });
-    document.addEventListener('touchend', touchEnd);
-}
-function touchMove(e) {
-    if (!dragging) return;
-    const t = e.touches[0];
-    const r = E.tlBar.getBoundingClientRect();
-    if (t.clientY >= r.top - 50 && t.clientY <= r.bottom + 100) jump(yearFromX(t.clientX));
-}
-function touchEnd() { dragging = false; document.removeEventListener('touchmove', touchMove); document.removeEventListener('touchend', touchEnd); }
+    $cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.top + rect.height / 2;
+        if (cardCenter <= viewportCenter) {
+            if (!topCard || rect.top > topCard.getBoundingClientRect().top) {
+                topCard = card;
+            }
+        }
+        if (cardCenter > viewportCenter) {
+            if (!bottomCard || rect.top < bottomCard.getBoundingClientRect().top) {
+                bottomCard = card;
+            }
+        }
+    });
 
-// ===================================
-// Header height -> set CSS var for card offset
-// ===================================
+    if (topCard && bottomCard) {
+        const topYear = parseInt(topCard.dataset.year, 10);
+        const bottomYear = parseInt(bottomCard.dataset.year, 10);
+        const topRect = topCard.getBoundingClientRect();
+        const botRect = bottomCard.getBoundingClientRect();
 
-function updateHeaderOffset() {
-    if (E.counterFixed && E.snap) {
-        E.snap.style.setProperty('--header-height', E.counterFixed.offsetHeight + 'px');
+        const topCenter = topRect.top + topRect.height / 2;
+        const botCenter = botRect.top + botRect.height / 2;
+        const range = botCenter - topCenter;
+        const progress = range > 0 ? (viewportCenter - topCenter) / range : 0;
+        const clampedProgress = Math.max(0, Math.min(1, progress));
+
+        const interpolatedYear = topYear + clampedProgress * (bottomYear - topYear);
+        updateFromYear(interpolatedYear);
+    } else if (topCard) {
+        updateFromYear(parseInt(topCard.dataset.year, 10));
+    } else if (bottomCard) {
+        updateFromYear(parseInt(bottomCard.dataset.year, 10));
     }
 }
 
 // ===================================
-// Speed buttons
+// Splash
 // ===================================
+function setupSplash() {
+    const splash = document.getElementById('splash');
+    const btn = document.getElementById('splashEnter');
+    if (!splash || !btn) return;
 
-function setupSpeed() {
-    $$('.speed-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            $$('.speed-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked','false'); });
-            btn.classList.add('active');
-            btn.setAttribute('aria-checked','true');
-            speed = btn.dataset.speed;
-        });
+    btn.addEventListener('click', () => {
+        splash.classList.add('hidden');
+        splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+        setTimeout(() => { if (splash.parentNode) splash.remove(); }, 600);
     });
 }
 
 // ===================================
 // Sources toggle
 // ===================================
-
 function setupSources() {
-    const toggle = $('#sourcesToggle');
-    const panel  = $('#sourcesPanel');
+    const toggle = document.getElementById('sourcesToggle');
+    const panel = document.getElementById('sourcesPanel');
     if (!toggle || !panel) return;
+
     toggle.addEventListener('click', () => {
-        const open = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', String(!open));
-        open ? panel.setAttribute('hidden','') : panel.removeAttribute('hidden');
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        if (expanded) panel.setAttribute('hidden', '');
+        else panel.removeAttribute('hidden');
     });
-}
 
-// ===================================
-// Splash
-// ===================================
-
-function setupSplash() {
-    const splash = $('#splash');
-    const enter  = $('#splashEnter');
-    if (!splash || !enter) return;
-    enter.addEventListener('click', () => {
-        // Track removal so transitionend and rAF fallback can't both fire
-        let removed = false;
-        function removeSplash() {
-            if (removed) return;
-            removed = true;
-            splash.remove();
-        }
-        // Primary: transitionend when CSS transition finishes
-        splash.addEventListener('transitionend', removeSplash, { once: true });
-        // Fallback: rAF + delay for browsers that don't fire transitionend
-        requestAnimationFrame(() => {
-            setTimeout(removeSplash, 650);
-        });
-        splash.classList.add('hidden');
-    });
-}
-
-// ===================================
-// Keyboard
-// ===================================
-
-function setupKeys() {
-    document.addEventListener('keydown', (e) => {
-        if (document.activeElement.tagName === 'BUTTON' || document.activeElement.tagName === 'INPUT') return;
-        const step = e.shiftKey ? 10 : 1;
-        switch (e.key) {
-            case ' ': e.preventDefault(); toggle(); break;
-            case 'r': case 'R': reset(); break;
+    panel.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            toggle.setAttribute('aria-expanded', 'false');
+            panel.setAttribute('hidden', '');
+            toggle.focus();
         }
     });
-
-    // Timeline keyboard
-    if (E.tlBar) {
-        E.tlBar.addEventListener('keydown', (e) => {
-            const step = e.shiftKey ? 10 : 1;
-            switch (e.key) {
-                case 'ArrowLeft':  e.preventDefault(); jump(Math.max(CONFIG.START_YEAR, getCurYear() - step)); break;
-                case 'ArrowRight': e.preventDefault(); jump(Math.min(CONFIG.END_YEAR, getCurYear() + step)); break;
-                case 'Home': e.preventDefault(); jump(CONFIG.START_YEAR); break;
-                case 'End':  e.preventDefault(); jump(CONFIG.END_YEAR); break;
-                case ' ': e.preventDefault(); toggle(); break;
-            }
-        });
-    }
-}
-
-function getCurYear() {
-    if (isPlaying) return Math.round(yearAtTime(performance.now() - animStart + pausedMs));
-    return Math.round(yearAtTime(pausedMs));
 }
 
 // ===================================
 // Init
 // ===================================
-
 function init() {
-    cache();
-    buildDots();
-    render(CONFIG.START_YEAR);
-    setupSpeed();
-    setupSources();
+    createTimelineDots();
+    updateFromYear(1800);
+    setupCardObserver();
+    setupScrollInterpolation();
     setupSplash();
-    setupKeys();
-    updateHeaderOffset();
-    window.addEventListener('resize', updateHeaderOffset);
-
-    if (E.playBtn) E.playBtn.addEventListener('click', toggle);
-    if (E.resetBtn) E.resetBtn.addEventListener('click', reset);
-    if (E.tlBar) {
-        E.tlBar.addEventListener('mousedown', dragStart);
-        E.tlBar.addEventListener('touchstart', touchStart, { passive: true });
-    }
+    setupSources();
 }
 
 if (document.readyState === 'loading') {

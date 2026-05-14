@@ -3,217 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A visualization of the Great Buffalo Collapse, 1800-1900. Watch 60 million buffalo disappear in real-time.">
-    <title>The Buffalo Counter — 1800-1900</title>
+    <meta name="description" content="A visualization of the Great Buffalo Collapse, 1800-1900. Scroll to watch the buffalo population disappear.">
+    <title>The Buffalo Counter — Scroll Edition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital,wght@0,400;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <!-- Splash / Intro Overlay -->
+    <!-- Splash Overlay -->
     <div class="splash" id="splash" role="dialog" aria-modal="true" aria-label="Introduction">
         <div class="splash-inner">
             <h1 class="splash-title">The Buffalo Counter</h1>
-            <p class="splash-subtitle">A visualization of the Great Buffalo Collapse, 1800–1900</p>
+            <p class="splash-subtitle">A visualization of the Great Buffalo Collapse, 1800-1900</p>
 
             <figure class="splash-image">
                 <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas">
-                <figcaption>Rath & Wright's buffalo hide yard, 1878 — 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
+                <figcaption>Rath & Wright's buffalo hide yard, 1878, 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
             </figure>
 
             <div class="splash-text">
                 <p>
-                    <strong>In 1800, an estimated 60 million buffalo</strong> roamed the North American plains.
-                    By 1900, fewer than <strong>1,000 remained</strong>.
+                    <strong>In 1800, an estimated 30 million buffalo</strong> roamed the North American plains.
+                    By 1900, fewer than <strong>500 remained</strong>.
                 </p>
                 <p>
-                    This collapse wasn't natural. Commercial hunting, military campaigns, and government policy
+                    This collapse was not natural. Commercial hunting, military campaigns, and government policy
                     destroyed the foundation of Plains Indigenous life on purpose.
                 </p>
                 <p>
-                    The Métis, who depended on buffalo for food, clothing, and trade, saw their world
+                    The Metis, who depended on buffalo for food, clothing, and trade, saw their world
                     disappear in a single lifetime.
                 </p>
             </div>
 
             <button class="splash-enter" id="splashEnter" type="button">
-                Explore the Counter
+                Begin
             </button>
         </div>
     </div>
 
-    <main id="main-content" class="app" role="main">
-        <!-- Fixed counter header -->
-        <header class="counter-fixed" id="counterFixed">
-            <h1 class="app-title">The Buffalo Counter</h1>
-            <div class="year-display" id="yearDisplay">
-                <span class="year-label">Year</span>
-                <span class="year-value" id="yearValue">1800</span>
-            </div>
-            <div class="counter-value" id="counterValue" aria-live="polite" aria-atomic="true">
-                <span class="counter-num">60,000,000</span>
-            </div>
+    <!-- Sticky Counter -->
+    <div class="counter-sticky" id="counterFixed" aria-label="Buffalo population counter">
+        <div class="counter-sticky-inner">
+            <div class="counter-year" id="counterYear" aria-live="polite">1800</div>
+            <div class="counter-value" id="counterValue" aria-live="polite">30,000,000</div>
             <div class="counter-label">Plains Buffalo</div>
-            <div class="status-row" id="statusIndicator" aria-live="polite" aria-atomic="true">
-                <span class="status-dot" id="statusDot"></span>
-                <span class="status-text" id="statusText">Population stable</span>
+            <div class="counter-status" id="counterStatus" aria-live="polite">Population stable</div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-wrap">
+        <div class="timeline-track">
+            <div class="timeline-fill" id="timelineFill"></div>
+        </div>
+        <div class="timeline-dots" id="timelineDots" aria-hidden="true"></div>
+        <div class="timeline-labels">
+            <span>1800</span>
+            <span>1850</span>
+            <span>1900</span>
+        </div>
+    </div>
+
+    <!-- Scroll Prompt -->
+    <div class="scroll-prompt" id="scrollPrompt" aria-hidden="true">
+        <span class="arrow">&#8595;</span>
+        Scroll to explore
+    </div>
+
+    <!-- Cards (scroll-snap) -->
+    <div class="cards-section" id="cardsSection">
+
+        <!-- Card 0: 1800 Intro -->
+        <div class="card active" data-year="1800" data-pop="30000000">
+            <div class="card-inner">
+                <div class="card-year">1800</div>
+                <h2 class="card-title">A Vast Ocean of Buffalo</h2>
+                <figure class="card-image">
+                    <img src="images/buffalo-trade-illustration.webp" alt="Buffalo trade illustration, 19th century" loading="lazy">
+                    <figcaption>Buffalo trade illustration, 19th century.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Tens of millions of buffalo covered the plains from Alberta to Texas. For the Metis,
+                    the buffalo was everything: food, clothing, shelter, trade goods. The hunt was
+                    communal, organized, and sustainable. It had been that way for generations.
+                </p>
             </div>
-            <div class="tl-wrap">
-                <div class="tl-bar" role="slider" aria-label="Year timeline" aria-valuemin="1800" aria-valuemax="1900" aria-valuenow="1800" id="timeline" tabindex="0">
-                    <div class="tl-fill" id="tlFill"></div>
-                    <div class="tl-dots" id="tlDots" aria-hidden="true"></div>
-                </div>
-                <div class="tl-labels"><span>1800</span><span>1850</span><span>1900</span></div>
+        </div>
+
+        <!-- Card 1: 1825 Fur Trade -->
+        <div class="card" data-year="1825" data-pop="25000000">
+            <div class="card-inner">
+                <div class="card-year">1825</div>
+                <h2 class="card-title"><span class="flag">&#x1F1E8;&#x1F1E6;</span> The Fur Trade Intensifies</h2>
+                <figure class="card-image">
+                    <img src="images/metis-brigades.jpg" alt="Metis buffalo hunt brigades on the prairie" loading="lazy">
+                    <figcaption>Metis buffalo hunt brigades on the prairie.</figcaption>
+                </figure>
+                <p class="card-text">
+                    The Hudson's Bay Company and North West Company competed for control of the plains.
+                    Metis freighters and hunters became the backbone of the trade. Pemmican: dried
+                    buffalo meat mixed with fat: fed the fur trade. The buffalo economy was booming,
+                    but the pressure was building.
+                </p>
             </div>
-            <div class="controls">
-                <button class="btn btn-primary" id="playBtn" type="button" aria-label="Play animation">▶ Play</button>
-                <button class="btn" id="resetBtn" type="button" aria-label="Reset">↺ Reset</button>
-                <div class="speed-selector" role="radiogroup" aria-label="Animation speed">
-                    <button class="speed-btn" data-speed="slow" role="radio" aria-checked="false" type="button">Slow</button>
-                    <button class="speed-btn active" data-speed="normal" role="radio" aria-checked="true" type="button">Normal</button>
-                    <button class="speed-btn" data-speed="fast" role="radio" aria-checked="false" type="button">Fast</button>
-                </div>
+        </div>
+
+        <!-- Card 2: 1850 Hide Trade -->
+        <div class="card" data-year="1850" data-pop="20000000">
+            <div class="card-inner">
+                <div class="card-year">1850</div>
+                <h2 class="card-title">The Hide Trade Takes Off</h2>
+                <figure class="card-image">
+                    <img src="images/buffalo-bones-cpr-boxcar.jpg" alt="Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan" loading="lazy">
+                    <figcaption>Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Commercial hunting for buffalo robes expanded east. For every robe that made it to
+                    market, several more buffalo were killed and left in the sun. The trade obscured the
+                    true death toll. By the 1870s, the robe trade peaked at 250,000 per year.
+                </p>
             </div>
-        </header>
+        </div>
 
-        <!-- Scroll-snap event cards -->
-        <section class="events-snap-area" id="eventsArea" aria-label="Historical events">
-            <div class="events-snap-container" id="eventsSnap">
-                <article class="event-card" data-index="0" data-year="1830">
-                    <div class="event-card-img-wrap">
-                        <img class="event-card-img" src="images/buffalo-trade-illustration.webp" alt="Buffalo trade illustration, 19th century" loading="lazy">
-                        <div class="event-card-img-overlay"></div>
-                        <span class="event-card-year-badge">1830</span>
-                    </div>
-                    <div class="event-card-body">
-                        <div class="event-card-title">The Hide Trade Begins</div>
-                        <p class="event-card-desc">Commercial hunting for buffalo robes expands. For every robe that made it to market, several more buffalo were killed and left in the sun. The trade fully obscured the true death toll. The robe trade peaked at 250,000 per year by the 1870s.</p>
-                        <div class="event-card-source">Isenberg, 2000</div>
-                    </div>
-                </article>
-
-                <article class="event-card" data-index="1" data-year="1860">
-                    <div class="event-card-img-wrap">
-                        <img class="event-card-img" src="images/buffalo-bones-cpr-boxcar.jpg" alt="Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan" loading="lazy">
-                        <div class="event-card-img-overlay"></div>
-                        <span class="event-card-year-badge">1860</span>
-                    </div>
-                    <div class="event-card-body">
-                        <div class="event-card-title">Railroads Reach the Plains<span class="event-card-flag">🇨🇦</span></div>
-                        <p class="event-card-desc">Railroads enable mass slaughter. Hunters fired from train windows, leaving carcasses to rot. The AT&SF depot at Dodge City shipped 200,000 hides per year.</p>
-                        <div class="event-card-source">Brown, 1970</div>
-                    </div>
-                </article>
-
-                <article class="event-card" data-index="2" data-year="1870">
-                    <div class="event-card-img-wrap">
-                        <img class="event-card-img" src="images/bison-skull-pile.jpg" alt="Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer" loading="lazy">
-                        <div class="event-card-img-overlay"></div>
-                        <span class="event-card-year-badge">1870</span>
-                    </div>
-                    <div class="event-card-body">
-                        <div class="event-card-title">The Great Collapse</div>
-                        <p class="event-card-desc">The population fell from millions to hundreds of thousands. Métis communities faced starvation as the buffalo economy vanished.</p>
-                        <div class="event-card-source">Flores, 2016; Peterson, 1985</div>
-                    </div>
-                </article>
-
-                <article class="event-card" data-index="3" data-year="1874">
-                    <div class="event-card-img-wrap">
-                        <img class="event-card-img" src="images/bison-hides-dodge-city.jpg" alt="Stacks of buffalo hides at the Dodge City rail depot" loading="lazy">
-                        <div class="event-card-img-overlay"></div>
-                        <span class="event-card-year-badge">1874</span>
-                    </div>
-                    <div class="event-card-body">
-                        <div class="event-card-title">US Army Campaigns</div>
-                        <p class="event-card-desc">The strategy was simple: kill the buffalo, break the people. The U.S. Army destroyed the herds to force Indigenous nations onto reservations. Gen. Philip Sheridan championed this policy before Congress.</p>
-                        <div class="event-card-source">Congressional Globe, 1874</div>
-                    </div>
-                </article>
-
-                <article class="event-card" data-index="4" data-year="1883">
-                    <div class="event-card-img-wrap">
-                        <img class="event-card-img" src="images/gathering-buffalo-bones.jpg" alt="Gathering Buffalo Bones on the Prairie, Alberta, Canada" loading="lazy">
-                        <div class="event-card-img-overlay"></div>
-                        <span class="event-card-year-badge">1883</span>
-                    </div>
-                    <div class="event-card-body">
-                        <div class="event-card-title">The Last of the Herds<span class="event-card-flag">🇨🇦</span></div>
-                        <p class="event-card-desc">Fewer than 1,000 buffalo remained in the wild. The species was functionally extinct. Hornaday's 1889 Smithsonian report documented the final toll.</p>
-                        <div class="event-card-source">Hornaday, 1889</div>
-                    </div>
-                </article>
+        <!-- Card 3: 1865 Railroads -->
+        <div class="card" data-year="1865" data-pop="13500000">
+            <div class="card-inner">
+                <div class="card-year">1865</div>
+                <h2 class="card-title">Railroads Reach the Plains</h2>
+                <figure class="card-image">
+                    <img src="images/bison-skull-pile.jpg" alt="Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer" loading="lazy">
+                    <figcaption>A pile of American bison skulls waiting to be ground for fertilizer, mid-1870s.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Railroads made mass slaughter possible. Hunters fired from train windows, leaving
+                    carcasses to rot. The bone trade shipped tons of remains east for fertilizer and
+                    sugar refining. The AT&SF depot at Dodge City shipped 200,000 hides per year.
+                </p>
             </div>
-        </section>
-    </main>
+        </div>
+
+        <!-- Card 4: 1870 Great Collapse -->
+        <div class="card" data-year="1870" data-pop="5500000">
+            <div class="card-inner">
+                <div class="card-year">1870</div>
+                <h2 class="card-title">The Great Collapse</h2>
+                <figure class="card-image">
+                    <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas" loading="lazy">
+                    <figcaption>Rath & Wright's buffalo hide yard, 1878, 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
+                </figure>
+                <p class="card-text">
+                    The population crashed from millions to hundreds of thousands in just a few years.
+                    Metis communities faced starvation as the buffalo economy vanished. In 1874, the
+                    U.S. Army openly championed killing buffalo to force Indigenous nations onto
+                    reservations. Gen. Philip Sheridan told Congress: "Let them kill, skin, and sell
+                    until the buffalo are exterminated."
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 5: 1880 Bone Trade -->
+        <div class="card" data-year="1880" data-pop="395000">
+            <div class="card-inner">
+                <div class="card-year">1880</div>
+                <h2 class="card-title"><span class="flag">&#x1F1E8;&#x1F1E6;</span> Picking the Bones Clean</h2>
+                <figure class="card-image">
+                    <img src="images/gathering-buffalo-bones.jpg" alt="Gathering Buffalo Bones on the Prairie, Alberta, Canada" loading="lazy">
+                    <figcaption>Gathering Buffalo Bones on the Prairie, Alberta, Canada.</figcaption>
+                </figure>
+                <p class="card-text">
+                    With the herds gone, a new industry rose: bone picking. Settlers and Indigenous
+                    people gathered bleached skeletons from the prairie. The CPR shipped boxcars full
+                    of bones east to Regina (the "Pile of Bones"), Moose Jaw, and Medicine Hat. The
+                    bones became fertilizer, bone char, and buttons. Nothing was wasted except the
+                    buffalo itself.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 6: 1889 Last Herds -->
+        <div class="card" data-year="1889" data-pop="653">
+            <div class="card-inner">
+                <div class="card-year">1889</div>
+                <h2 class="card-title">The Last of the Herds</h2>
+                <figure class="card-image">
+                    <img src="images/bison-skull-pile.jpg" alt="Pile of bison skulls from the 1870s" loading="lazy">
+                    <figcaption>The skulls told the story the living no longer could.</figcaption>
+                </figure>
+                <p class="card-text">
+                    William Temple Hornaday's 1889 Smithsonian report documented the final toll: fewer
+                    than 1,000 buffalo remained in the wild. The species was functionally extinct. The
+                    Metis homeland was shattered. The plains were silent.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 7: 1900 End -->
+        <div class="card card-end" data-year="1900" data-pop="500">
+            <div class="card-inner">
+                <div class="card-year">1900</div>
+                <h2 class="card-title">Functionally Extinct</h2>
+                <p class="card-text">
+                    By 1900, roughly 500 buffalo remained, scattered in private herds and a small
+                    wild population in Yellowstone. In a single lifetime, the most abundant large
+                    mammal in North America had been reduced to nearly nothing.
+                </p>
+                <p class="card-text" style="margin-top: 1rem;">
+                    The Metis lost their economy, their food sovereignty, and the foundation of their
+                    way of life. The plains were opened for settlement. The destruction was the point.
+                </p>
+                <p class="card-text" style="margin-top: 1.5rem; font-style: italic; color: var(--color-text-muted);">
+                    Conservation efforts in the early 1900s brought the species back from the brink.
+                    Today, roughly 500,000 buffalo exist. Most are in commercial herds. A few wild,
+                    free-roaming populations remain.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer spacer -->
+        <div class="footer">
+            Created by Bayard deVries &middot;
+            <a href="https://github.com/Bayarddevries/buffalo-counter" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </div>
 
     <!-- Collapsible Sources Bar -->
     <div class="sources-bar" id="sourcesBar">
-        <button class="sources-toggle" id="sourcesToggle" type="button" aria-expanded="false" aria-controls="sourcesPanel">
-            <span class="sources-toggle-icon" id="sourcesToggleIcon">▲</span>
-            <span class="sources-toggle-text">Sources &amp; References</span>
+        <button class="sources-toggle" id="sourcesToggle" aria-expanded="false" aria-controls="sourcesPanel">
+            <span class="sources-toggle-icon">&#9650;</span>
+            <span>Sources & References</span>
         </button>
         <div class="sources-panel" id="sourcesPanel" role="region" aria-label="Sources and references" hidden>
-            <div class="sources-panel-inner">
-                <div class="source-category">
-                    <h3>Population Estimates &amp; Data</h3>
-                    <ul>
-                        <li id="src-seton1909">
-                            <a href="#ref-in-1800">↑</a>
-                            Seton, Ernest Thompson. (1909). <em>Life-Histories of Northern Animals</em>, Vol. 1. Charles Scribner's Sons. — Estimated ~60 million buffalo pre-1800.
-                        </li>
-                        <li id="src-flores2016">
-                            Flores, Dan. (2016). <em>American Serengeti: The Last Big Animals of the Great Plains</em>. University of Oklahoma Press. — Estimated ~30 million; ecological carrying capacity analysis.
-                        </li>
-                        <li id="src-roe1951">
-                            Roe, Frank Gilbert. (1951). <em>The North American Buffalo: A Critical Study of the Species in Its Wild State</em>. University of Toronto Press. — Comprehensive critical analysis of all population estimates.
-                        </li>
-                        <li id="src-hornaday1889">
-                            <a href="#ref-in-1900">↑</a>
-                            Hornaday, William Temple. (1889). "The Extermination of the American Bison." <em>Annual Report of the Smithsonian Institution</em>, pp. 367–548. Government Printing Office. — First systematic count of remaining buffalo; documented the crash.
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="source-category">
-                    <h3>Historical Events &amp; Mechanisms</h3>
-                    <ul>
-                        <li id="src-isenberg2000">
-                            <a href="#ref-deliberate">↑</a>
-                            Isenberg, Andrew C. (2000). <em>The Destruction of the Bison: An Environmental History, 1750–1920</em>. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511549861" target="_blank" rel="noopener noreferrer">DOI</a> — Chapters 2–5 cover hide trade, railroads, military campaigns.
-                        </li>
-                        <li id="src-brown1970">
-                            Brown, Dee. (1970). <em>Bury My Heart at Wounded Knee</em>. Holt, Rinehart and Winston. — Railroad slaughter and military campaigns, Chapters 1–8.
-                        </li>
-                        <li id="src-congressional1874">
-                            U.S. Congress. (1874). <em>Congressional Globe</em>, 43rd Congress, 1st Session. — Gen. Philip Sheridan's testimony on military strategy and buffalo destruction.
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="source-category">
-                    <h3>Métis History &amp; Culture</h3>
-                    <ul>
-                        <li id="src-peterson1985">
-                            <a href="#ref-metis">↑</a>
-                            Peterson, Jacqueline. (1985). "Many Roads to Red River: Métis Genesis in the Great Lakes Culture Area." <em>The People in Between</em>. Gabriel Dumont Institute. — Métis history, culture, buffalo economy.
-                        </li>
-                        <li id="src-barkwell2011">
-                            Barkwell, Lawrence J., ed. (2011). <em>The Métis Homeland: Its Settlements and Communities</em>. Louis Riel Institute.
-                        </li>
-                        <li id="src-payant2003">
-                            Payant, Catherine. (2003). <em>The Métis: The People, the History, the Culture</em>. Fitzhenry & Whiteside.
-                        </li>
-                    </ul>
-                </div>
-
-                <p class="sources-note">
-                    Population data points are interpolated between published estimates. The exact numbers shown are approximations — the pre-collapse population is debated and varies by source. The scale of collapse, however, is undisputed.
-                </p>
-            </div>
+            <h3>Population Estimates & Data</h3>
+            <ul>
+                <li>Seton, Ernest Thompson. (1909). <em>Life-Histories of Northern Animals</em>, Vol. 1. Seton estimated ~60 million pre-1800.</li>
+                <li>Flores, Dan. (2016). <em>American Serengeti</em>. University of Oklahoma Press. Estimated ~30 million and analyzed carrying capacity.</li>
+                <li>Roe, Frank Gilbert. (1951). <em>The North American Buffalo</em>. University of Toronto Press. Critical analysis of all population estimates.</li>
+                <li>Hornaday, William Temple. (1889). "The Extermination of the American Bison." <em>Smithsonian Institution Annual Report</em>. First systematic count of remaining buffalo.</li>
+            </ul>
+            <h3>Historical Events & Mechanisms</h3>
+            <ul>
+                <li>Isenberg, Andrew C. (2000). <em>The Destruction of the Bison</em>. Cambridge University Press. Hide trade, railroads, military campaigns.</li>
+                <li>Brown, Dee. (1970). <em>Bury My Heart at Wounded Knee</em>. Holt, Rinehart and Winston.</li>
+                <li>U.S. Congress. (1874). <em>Congressional Globe</em>, 43rd Congress. Sheridan's testimony on buffalo destruction policy.</li>
+            </ul>
+            <h3>Metis History & Culture</h3>
+            <ul>
+                <li>Peterson, Jacqueline. (1985). "Many Roads to Red River." <em>The People in Between</em>. Gabriel Dumont Institute.</li>
+                <li>Barkwell, Lawrence J., ed. (2011). <em>The Metis Homeland</em>. Louis Riel Institute.</li>
+            </ul>
+            <p class="sources-note">
+                Population data points are interpolated between published estimates. The exact numbers
+                shown are approximations. The pre-collapse population is debated. The scale of collapse,
+                however, is undisputed.
+            </p>
         </div>
     </div>
 
