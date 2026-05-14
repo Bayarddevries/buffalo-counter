@@ -314,15 +314,14 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
- card {
+ .card {
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding: 2rem 1rem;
-    overflow-y: auto;
     opacity: 0.35;
     transform: scale(0.97);
     transition: opacity 0.4s ease, transform 0.4s ease, background 0.4s ease;
@@ -334,6 +333,13 @@ body {
     transform: scale(1);
     background: var(--color-bg-card-active);
 }
+
+.card.card-end {
+    scroll-snap-align: none;
+    padding-bottom: 30vh;
+    /* Extra space to scroll past the finale */
+}
+
 
 .card-inner {
     max-width: 600px;
@@ -646,8 +652,8 @@ body {
     .card {
         justify-content: flex-start;
         padding: 1.25rem 1rem;
-        height: calc(100vh - var(--counter-height) - 60px);
-        overflow-y: auto;
+        min-height: calc(100vh - var(--counter-height) - 60px);
+        
     }
 
     .card-year {
