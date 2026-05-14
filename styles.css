@@ -362,13 +362,17 @@ body {
     margin: 0 0 0.75rem;
     border-radius: var(--radius-lg);
     overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: rgba(0,0,0,0.2);
 }
 
 .card-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
     border-radius: var(--radius-lg);
+    object-fit: contain;
+    background: #000;
 }
 
 .card-image figcaption {
