@@ -7,7 +7,7 @@
     <title>The Buffalo Counter — 1800-1900</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -45,155 +45,114 @@
         </div>
     </div>
 
-    <main id="main-content" class="container">
-        <header>
-            <h1>The Buffalo Counter</h1>
-            <p class="subtitle">A visualization of the Great Buffalo Collapse, 1800–1900</p>
-        </header>
-
-        <div class="sticky-counter" aria-label="Buffalo population counter">
-            <section class="visualization">
-                <div class="year-display" id="yearDisplay" aria-live="polite" aria-atomic="true">
-                    <span class="year-label">Year</span>
-                    <span class="year-value" id="yearValue">1800</span>
-                </div>
-
-                <div class="counter-wrapper">
-                    <div class="counter" id="counter" aria-live="polite" aria-atomic="true">
-                        <span class="counter-value" id="counterValue">60,000,000</span>
-                    </div>
-                    <div class="counter-label">Plains Buffalo</div>
-                </div>
-
-                <div class="status-indicator" id="statusIndicator" aria-live="polite" aria-atomic="true">
-                    <span class="status-dot"></span>
-                    <span class="status-text">Population stable</span>
-                </div>
-            </section>
-        </div>
-
-        <section class="timeline-section" aria-label="Timeline controls">
-            <div class="timeline-container">
-                <div
-                    class="timeline"
-                    id="timeline"
-                    role="slider"
-                    aria-label="Year timeline"
-                    aria-valuemin="1800"
-                    aria-valuemax="1900"
-                    aria-valuenow="1800"
-                    tabindex="0"
-                >
-                    <div class="timeline-track">
-                        <div class="timeline-fill" id="timelineFill"></div>
-                    </div>
-                    <button
-                        class="timeline-handle"
-                        id="timelineHandle"
-                        type="button"
-                        aria-label="Drag to change year"
-                        aria-hidden="true"
-                    >
-                        <span class="timeline-handle-dot"></span>
-                    </button>
-                    <div class="timeline-events" id="timelineEvents" aria-hidden="true"></div>
-                </div>
-                <div class="timeline-tooltip" id="timelineTooltip" role="tooltip" aria-hidden="true"></div>
-                <div class="timeline-labels">
-                    <span>1800</span>
-                    <span>1850</span>
-                    <span>1900</span>
-                </div>
+    <main id="main-content" class="app" role="main">
+        <!-- Fixed counter header -->
+        <header class="counter-fixed" id="counterFixed">
+            <h1 class="app-title">The Buffalo Counter</h1>
+            <div class="year-display" id="yearDisplay">
+                <span class="year-label">Year</span>
+                <span class="year-value" id="yearValue">1800</span>
             </div>
-
+            <div class="counter-value" id="counterValue" aria-live="polite" aria-atomic="true">
+                <span class="counter-num">60,000,000</span>
+            </div>
+            <div class="counter-label">Plains Buffalo</div>
+            <div class="status-row" id="statusIndicator" aria-live="polite" aria-atomic="true">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">Population stable</span>
+            </div>
+            <div class="tl-wrap">
+                <div class="tl-bar" role="slider" aria-label="Year timeline" aria-valuemin="1800" aria-valuemax="1900" aria-valuenow="1800" id="timeline" tabindex="0">
+                    <div class="tl-fill" id="tlFill"></div>
+                    <div class="tl-dots" id="tlDots" aria-hidden="true"></div>
+                </div>
+                <div class="tl-labels"><span>1800</span><span>1850</span><span>1900</span></div>
+            </div>
             <div class="controls">
-                <button
-                    class="btn btn-primary"
-                    id="playBtn"
-                    aria-label="Play animation"
-                    aria-pressed="false"
-                >
-                    <span class="btn-icon">▶</span>
-                    <span class="btn-text">Play</span>
-                </button>
-                <button
-                    class="btn btn-secondary"
-                    id="resetBtn"
-                    aria-label="Reset to 1800"
-                >
-                    <span class="btn-icon">↺</span>
-                    <span class="btn-text">Reset</span>
-                </button>
+                <button class="btn btn-primary" id="playBtn" type="button" aria-label="Play animation">▶ Play</button>
+                <button class="btn" id="resetBtn" type="button" aria-label="Reset">↺ Reset</button>
                 <div class="speed-selector" role="radiogroup" aria-label="Animation speed">
                     <button class="speed-btn" data-speed="slow" role="radio" aria-checked="false" type="button">Slow</button>
                     <button class="speed-btn active" data-speed="normal" role="radio" aria-checked="true" type="button">Normal</button>
                     <button class="speed-btn" data-speed="fast" role="radio" aria-checked="false" type="button">Fast</button>
                 </div>
             </div>
-        </section>
+        </header>
 
-        <section class="events" aria-label="Historical events">
-            <h2>Key Events</h2>
-            <div class="events-list" id="eventsList">
-                <article class="event" data-year="1830" aria-hidden="true">
-                    <div class="event-year">1830</div>
-                    <h3 class="event-title">The Hide Trade Begins</h3>
-                    <figure class="event-image">
-                        <img src="images/buffalo-trade-illustration.webp" alt="Buffalo trade illustration, 19th century" loading="lazy">
-                        <figcaption>Buffalo trade illustration, 19th century.</figcaption>
-                    </figure>
-                    <p class="event-desc">Commercial hunting for buffalo robes expands. For every robe that made it to market, several more buffalo were killed and left in the sun. The trade fully obscured the true death toll. The robe trade peaked at 250,000 per year by the 1870s.<sup><a href="#src-isenberg2000">[1]</a></sup></p>
+        <!-- Scroll-snap event cards -->
+        <section class="events-snap-area" id="eventsArea" aria-label="Historical events">
+            <div class="events-snap-container" id="eventsSnap">
+                <article class="event-card" data-index="0" data-year="1830">
+                    <div class="event-card-img-wrap">
+                        <img class="event-card-img" src="images/buffalo-trade-illustration.webp" alt="Buffalo trade illustration, 19th century" loading="lazy">
+                        <div class="event-card-img-overlay"></div>
+                        <span class="event-card-year-badge">1830</span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-card-title">The Hide Trade Begins</div>
+                        <p class="event-card-desc">Commercial hunting for buffalo robes expands. For every robe that made it to market, several more buffalo were killed and left in the sun. The trade fully obscured the true death toll. The robe trade peaked at 250,000 per year by the 1870s.</p>
+                        <div class="event-card-source">Isenberg, 2000</div>
+                    </div>
                 </article>
 
-                <article class="event" data-year="1860" aria-hidden="true">
-                    <div class="event-year">1860</div>
-                    <h3 class="event-title">Railroads Reach the Plains</h3>
-                    <figure class="event-image">
-                        <img src="images/buffalo-bones-cpr-boxcar.jpg" alt="Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan" loading="lazy">
-                        <figcaption>Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan.</figcaption>
-                    </figure>
-                    <p class="event-desc">Railroads enable mass slaughter. Hunters fired from train windows, leaving carcasses to rot. The AT&SF depot at Dodge City shipped 200,000 hides per year.<sup><a href="#src-brown1970">[2]</a></sup></p>
+                <article class="event-card" data-index="1" data-year="1860">
+                    <div class="event-card-img-wrap">
+                        <img class="event-card-img" src="images/buffalo-bones-cpr-boxcar.jpg" alt="Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan" loading="lazy">
+                        <div class="event-card-img-overlay"></div>
+                        <span class="event-card-year-badge">1860</span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-card-title">Railroads Reach the Plains<span class="event-card-flag">🇨🇦</span></div>
+                        <p class="event-card-desc">Railroads enable mass slaughter. Hunters fired from train windows, leaving carcasses to rot. The AT&SF depot at Dodge City shipped 200,000 hides per year.</p>
+                        <div class="event-card-source">Brown, 1970</div>
+                    </div>
                 </article>
 
-                <article class="event" data-year="1870" aria-hidden="true">
-                    <div class="event-year">1870</div>
-                    <h3 class="event-title">The Great Collapse</h3>
-                    <figure class="event-image">
-                        <img src="images/bison-skull-pile.jpg" alt="Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer" loading="lazy">
-                        <figcaption>Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer.</figcaption>
-                    </figure>
-                    <p class="event-desc">The population fell from millions to hundreds of thousands. Métis communities faced starvation as the buffalo economy vanished.<sup><a href="#src-flores2016">[3]</a><a href="#src-peterson1985">[4]</a></sup></p>
+                <article class="event-card" data-index="2" data-year="1870">
+                    <div class="event-card-img-wrap">
+                        <img class="event-card-img" src="images/bison-skull-pile.jpg" alt="Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer" loading="lazy">
+                        <div class="event-card-img-overlay"></div>
+                        <span class="event-card-year-badge">1870</span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-card-title">The Great Collapse</div>
+                        <p class="event-card-desc">The population fell from millions to hundreds of thousands. Métis communities faced starvation as the buffalo economy vanished.</p>
+                        <div class="event-card-source">Flores, 2016; Peterson, 1985</div>
+                    </div>
                 </article>
 
-                <article class="event" data-year="1874" aria-hidden="true">
-                    <div class="event-year">1874</div>
-                    <h3 class="event-title">US Army Campaigns</h3>
-                    <p class="event-desc">The strategy was simple: kill the buffalo, break the people. The U.S. Army destroyed the herds to force Indigenous nations onto reservations. Gen. Philip Sheridan championed this policy before Congress.<sup><a href="#src-congressional1874">[5]</a></sup></p>
+                <article class="event-card" data-index="3" data-year="1874">
+                    <div class="event-card-img-wrap">
+                        <img class="event-card-img" src="images/bison-hides-dodge-city.jpg" alt="Stacks of buffalo hides at the Dodge City rail depot" loading="lazy">
+                        <div class="event-card-img-overlay"></div>
+                        <span class="event-card-year-badge">1874</span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-card-title">US Army Campaigns</div>
+                        <p class="event-card-desc">The strategy was simple: kill the buffalo, break the people. The U.S. Army destroyed the herds to force Indigenous nations onto reservations. Gen. Philip Sheridan championed this policy before Congress.</p>
+                        <div class="event-card-source">Congressional Globe, 1874</div>
+                    </div>
                 </article>
 
-                <article class="event" data-year="1883" aria-hidden="true">
-                    <div class="event-year">1883</div>
-                    <h3 class="event-title">The Last of the Herds</h3>
-                    <figure class="event-image">
-                        <img src="images/gathering-buffalo-bones.jpg" alt="Gathering Buffalo Bones on the Prairie, Alberta, Canada" loading="lazy">
-                        <figcaption>Gathering Buffalo Bones on the Prairie, Alberta, Canada.</figcaption>
-                    </figure>
-                    <p class="event-desc">Fewer than 1,000 buffalo remained in the wild. The species was functionally extinct. Hornaday's 1889 Smithsonian report documented the final toll.<sup><a href="#src-hornaday1889">[6]</a></sup></p>
+                <article class="event-card" data-index="4" data-year="1883">
+                    <div class="event-card-img-wrap">
+                        <img class="event-card-img" src="images/gathering-buffalo-bones.jpg" alt="Gathering Buffalo Bones on the Prairie, Alberta, Canada" loading="lazy">
+                        <div class="event-card-img-overlay"></div>
+                        <span class="event-card-year-badge">1883</span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-card-title">The Last of the Herds<span class="event-card-flag">🇨🇦</span></div>
+                        <p class="event-card-desc">Fewer than 1,000 buffalo remained in the wild. The species was functionally extinct. Hornaday's 1889 Smithsonian report documented the final toll.</p>
+                        <div class="event-card-source">Hornaday, 1889</div>
+                    </div>
                 </article>
             </div>
         </section>
-
-        <footer>
-            <p class="footer-text">
-                Created by Bayard deVries •
-                <a href="https://github.com/Bayarddevries/buffalo-counter" target="_blank" rel="noopener noreferrer">GitHub</a>
-            </p>
-        </footer>
     </main>
 
     <!-- Collapsible Sources Bar -->
     <div class="sources-bar" id="sourcesBar">
-        <button class="sources-toggle" id="sourcesToggle" aria-expanded="false" aria-controls="sourcesPanel">
+        <button class="sources-toggle" id="sourcesToggle" type="button" aria-expanded="false" aria-controls="sourcesPanel">
             <span class="sources-toggle-icon" id="sourcesToggleIcon">▲</span>
             <span class="sources-toggle-text">Sources &amp; References</span>
         </button>
