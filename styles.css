@@ -336,6 +336,7 @@ body {
 
 .card.card-end {
     scroll-snap-align: none;
+    scroll-snap-stop: normal;
     padding-bottom: 30vh;
     /* Extra space to scroll past the finale */
 }
