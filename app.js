@@ -2,7 +2,6 @@
 // Data
 // ===================================
 
-// Authoritative population data
 const DATA_POINTS = [
     { year: 1800, pop: 30000000 },
     { year: 1850, pop: 20000000 },
@@ -28,8 +27,8 @@ const STATUS = {
 // ===================================
 let currentYear = 1800;
 let currentPop = 30000000;
-let activeCardIndex = 0;
 let ticking = false;
+let promptHidden = false;
 
 // ===================================
 // DOM refs
@@ -122,33 +121,7 @@ function updateFromYear(year) {
 }
 
 // ===================================
-// Card activation via IntersectionObserver
-// ===================================
-function setupCardObserver() {
-    if (!$section || $cards.length === 0) return;
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const card = entry.target;
-            const year = parseInt(card.dataset.year, 10);
-
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-                card.classList.add('active');
-                updateFromYear(year);
-                if ($prompt) $prompt.style.display = 'none';
-            } else {
-                card.classList.remove('active');
-            }
-        });
-    }, {
-        root: $section,
-        threshold: 0.5,
-    });
-
-    $cards.forEach(card => observer.observe(card));
-}
-
-// ===================================
-// Smooth counter interpolation during scroll
+// Scroll interpolation & active card
 // ===================================
 function setupScrollInterpolation() {
     if (!$section) return;
@@ -187,6 +160,9 @@ function updateFromScroll() {
         }
     });
 
+    let activeCard = null;
+    let interpolatedYear = currentYear;
+
     if (topCard && bottomCard) {
         const topYear = parseInt(topCard.dataset.year, 10);
         const bottomYear = parseInt(bottomCard.dataset.year, 10);
@@ -199,12 +175,27 @@ function updateFromScroll() {
         const progress = range > 0 ? (viewportCenter - topCenter) / range : 0;
         const clampedProgress = Math.max(0, Math.min(1, progress));
 
-        const interpolatedYear = topYear + clampedProgress * (bottomYear - topYear);
-        updateFromYear(interpolatedYear);
+        interpolatedYear = topYear + clampedProgress * (bottomYear - topYear);
+        activeCard = clampedProgress < 0.5 ? topCard : bottomCard;
     } else if (topCard) {
-        updateFromYear(parseInt(topCard.dataset.year, 10));
+        interpolatedYear = parseInt(topCard.dataset.year, 10);
+        activeCard = topCard;
     } else if (bottomCard) {
-        updateFromYear(parseInt(bottomCard.dataset.year, 10));
+        interpolatedYear = parseInt(bottomCard.dataset.year, 10);
+        activeCard = bottomCard;
+    }
+
+    // Update counter display
+    updateFromYear(interpolatedYear);
+
+    // Update active card visual state
+    $cards.forEach(c => c.classList.remove('active'));
+    if (activeCard) activeCard.classList.add('active');
+
+    // Hide scroll prompt on first interaction
+    if (!promptHidden && $prompt) {
+        $prompt.style.display = 'none';
+        promptHidden = true;
     }
 }
 
@@ -263,7 +254,7 @@ function setupCitationToast() {
         if (e.target.classList.contains('cite')) {
             e.preventDefault();
             const source = e.target.getAttribute('data-source');
-            
+
             toast.textContent = source;
             toast.classList.add('visible');
 
@@ -281,7 +272,8 @@ function setupCitationToast() {
 function init() {
     createTimelineDots();
     updateFromYear(1800);
-    setupCardObserver();
+    // Set initial active card
+    if ($cards.length > 0) $cards[0].classList.add('active');
     setupScrollInterpolation();
     setupSplash();
     setupSources();
