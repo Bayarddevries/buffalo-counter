@@ -308,7 +308,7 @@ body {
 .cards-section {
     scroll-snap-type: y mandatory;
     overflow-y: auto;
-    height: calc(100vh - var(--counter-height) - 60px);
+    min-height: 100vh;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -316,11 +316,11 @@ body {
 .card {
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    min-height: calc(100vh - var(--counter-height) - 80px);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 1.5rem 1rem;
+    padding: 2rem 1rem;
     opacity: 0.35;
     transform: scale(0.97);
     transition: opacity 0.4s ease, transform 0.4s ease, background 0.4s ease;
@@ -388,9 +388,49 @@ body {
     font-size: 1.1em;
 }
 
-/* End card */
-.card-end {
+
+/* ===================================
+   Citation Toast
+   =================================== */
+.citation-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 1000;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    padding: 12px 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-active);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    max-width: 90vw;
     text-align: center;
+}
+
+.citation-toast.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.cite {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8em;
+    vertical-align: super;
+    margin-left: 2px;
+    transition: color var(--transition-fast);
+}
+
+.cite:hover {
+    color: var(--color-accent-hover);
+    text-decoration: underline;
 }
 
 .card-end .card-year {

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A visualization of the Great Buffalo Collapse, 1800-1900.">
+    <title>The Buffalo Counter — Scroll Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===================================
+           Design Tokens
+           =================================== */
+        :root {
+            --color-bg: #0a0a0a;
+            --color-bg-secondary: #111;
+            --color-bg-card: #141414;
+            --color-bg-card-active: #1a1a1a;
+            --color-text-primary: #e8e8e8;
+            --color-text-secondary: #888;
+            --color-text-muted: #666;
+            --color-accent: #c49a3a;
+            --color-accent-hover: #d4a843;
+            --color-danger: #c41e3a;
+            --color-danger-dark: #8b0000;
+            --color-success: #2d6a4f;
+            --color-warning: #e76f51;
+            --color-border: rgba(196, 154, 58, 0.15);
+            --color-border-active: rgba(196, 154, 58, 0.4);
+
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Crimson Text', Georgia, serif;
+
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+
+            --transition-fast: 150ms ease;
+            --transition-base: 300ms ease;
+            --transition-slow: 500ms ease;
+
+            --counter-height: 200px;
+        }
+
+        /* ===================================
+           Reset & Base
+           =================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: auto;
+        }
+
+        body {
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* ===================================
+           Splash Overlay
+           =================================== */
+        .splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--color-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-inner {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .splash-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .splash-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-bottom: 2rem;
+        }
+
+        .splash-image {
+            margin: 0 auto 2rem;
+            max-width: 500px;
+        }
+
+        .splash-image img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-lg);
+            display: block;
+        }
+
+        .splash-image figcaption {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .splash-text {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .splash-text p {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            color: var(--color-text-secondary);
+        }
+
+        .splash-text strong {
+            color: var(--color-text-primary);
+        }
+
+        .splash-enter {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            padding: 14px 2rem;
+            background: transparent;
+            border: 2px solid var(--color-accent);
+            color: var(--color-accent);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .splash-enter:hover {
+            background: var(--color-accent);
+            color: var(--color-bg);
+        }
+
+        /* ===================================
+           Sticky Counter — always visible
+           =================================== */
+        .counter-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--color-bg);
+            padding: 1rem 1rem 0.75rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .counter-sticky-inner {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .counter-year {
+            font-family: var(--font-heading);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: 700;
+            color: var(--color-accent);
+            line-height: 1.1;
+        }
+
+        .counter-value {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 12vw, 4.5rem);
+            font-weight: 700;
+            color: var(--color-danger);
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(196, 30, 58, 0.25);
+            transition: color var(--transition-base);
+            margin: 0.25rem 0;
+        }
+
+        .counter-value.critical {
+            color: var(--color-danger-dark);
+            text-shadow: 0 0 60px rgba(139, 0, 0, 0.4);
+        }
+
+        .counter-value.warning {
+            color: var(--color-warning);
+            text-shadow: 0 0 60px rgba(231, 111, 81, 0.3);
+        }
+
+        .counter-label {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        .counter-status {
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ===================================
+           Timeline — scroll-linked
+           =================================== */
+        .timeline-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0.75rem 1rem;
+        }
+
+        .timeline-track {
+            position: relative;
+            height: 6px;
+            background: var(--color-bg-secondary);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .timeline-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-danger));
+            border-radius: 999px;
+            width: 0%;
+            will-change: width;
+        }
+
+        .timeline-dots {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2px;
+            margin-top: 4px;
+        }
+
+        .timeline-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-text-muted);
+            transition: all var(--transition-base);
+            flex-shrink: 0;
+        }
+
+        .timeline-dot.active {
+            background: var(--color-danger);
+            border-color: var(--color-danger);
+            box-shadow: 0 0 6px rgba(196, 30, 58, 0.4);
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            margin-top: 2px;
+            padding: 0 2px;
+        }
+
+        /* ===================================
+           Scroll Prompt
+           =================================== */
+        .scroll-prompt {
+            text-align: center;
+            padding: 0.5rem 1rem 1rem;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            animation: scroll-bounce 2s ease-in-out infinite;
+        }
+
+        .scroll-prompt .arrow {
+            display: block;
+            font-size: 1.4rem;
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes scroll-bounce {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(6px); opacity: 1; }
+        }
+
+        /* ===================================
+           Cards Section — scroll snap
+           =================================== */
+        .cards-section {
+            scroll-snap-type: y mandatory;
+            overflow-y: auto;
+            /* Height = viewport minus sticky counter area */
+            height: calc(100vh - var(--counter-height) - 80px);
+            scroll-behavior: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .card {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            min-height: calc(100vh - var(--counter-height) - 80px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 1rem;
+            opacity: 0.35;
+            transform: scale(0.97);
+            transition: opacity 0.4s ease, transform 0.4s ease, background 0.4s ease;
+            background: transparent;
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: scale(1);
+            background: var(--color-bg-card-active);
+        }
+
+        .card-inner {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card-year {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: var(--color-accent);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .card-image {
+            margin: 0 0 1rem;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: var(--radius-lg);
+        }
+
+        .card-image figcaption {
+            font-size: 0.78rem;
+            color: var(--color-text-muted);
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+
+        .card-text {
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            color: var(--color-text-secondary);
+            line-height: 1.65;
+        }
+
+        .card-text .flag {
+            font-size: 1.1em;
+        }
+
+        /* ===================================
+           End card
+           =================================== */
+        .card-end {
+            text-align: center;
+        }
+
+        .card-end .card-year {
+            color: var(--color-danger-dark);
+        }
+
+        /* ===================================
+           Sources bar (collapsible bottom)
+           =================================== */
+        .sources-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            background: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .sources-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .sources-toggle-icon {
+            transition: transform var(--transition-fast);
+            font-size: 0.7rem;
+        }
+
+        .sources-toggle[aria-expanded="true"] .sources-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .sources-panel {
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 0 1rem 1rem;
+        }
+
+        .sources-panel[hidden] {
+            display: none;
+        }
+
+        .sources-panel h3 {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            color: var(--color-accent);
+            margin: 1rem 0 0.5rem;
+        }
+
+        .sources-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sources-panel li {
+            font-size: 0.82rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .sources-panel a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .sources-panel a:hover {
+            text-decoration: underline;
+        }
+
+        .sources-note {
+            font-size: 0.78rem;
+            color: var(--color-text-muted);
+            font-style: italic;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* ===================================
+           Footer
+           =================================== */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            font-family: var(--font-heading);
+        }
+
+        .footer a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        /* ===================================
+           Responsive
+           =================================== */
+        @media (min-width: 768px) {
+            :root {
+                --counter-height: 240px;
+            }
+
+            .card {
+                padding: 3rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Overlay -->
+    <div class="splash" id="splash" role="dialog" aria-modal="true" aria-label="Introduction">
+        <div class="splash-inner">
+            <h1 class="splash-title">The Buffalo Counter</h1>
+            <p class="splash-subtitle">A visualization of the Great Buffalo Collapse, 1800–1900</p>
+
+            <figure class="splash-image">
+                <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas">
+                <figcaption>Rath & Wright's buffalo hide yard, 1878 — 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
+            </figure>
+
+            <div class="splash-text">
+                <p>
+                    <strong>In 1800, an estimated 30 million buffalo</strong> roamed the North American plains.
+                    By 1900, fewer than <strong>500 remained</strong>.
+                </p>
+                <p>
+                    This collapse wasn't natural. Commercial hunting, military campaigns, and government policy
+                    destroyed the foundation of Plains Indigenous life on purpose.
+                </p>
+                <p>
+                    The Métis, who depended on buffalo for food, clothing, and trade, saw their world
+                    disappear in a single lifetime.
+                </p>
+            </div>
+
+            <button class="splash-enter" id="splashEnter" type="button">
+                Begin
+            </button>
+        </div>
+    </div>
+
+    <!-- Sticky Counter -->
+    <div class="counter-sticky" aria-label="Buffalo population counter">
+        <div class="counter-sticky-inner">
+            <div class="counter-year" id="counterYear" aria-live="polite">1800</div>
+            <div class="counter-value" id="counterValue" aria-live="polite">30,000,000</div>
+            <div class="counter-label">Plains Buffalo</div>
+            <div class="counter-status" id="counterStatus" aria-live="polite">Population stable</div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-wrap">
+        <div class="timeline-track">
+            <div class="timeline-fill" id="timelineFill"></div>
+        </div>
+        <div class="timeline-dots" id="timelineDots" aria-hidden="true"></div>
+        <div class="timeline-labels">
+            <span>1800</span>
+            <span>1850</span>
+            <span>1900</span>
+        </div>
+    </div>
+
+    <!-- Scroll Prompt -->
+    <div class="scroll-prompt" id="scrollPrompt" aria-hidden="true">
+        <span class="arrow">↓</span>
+        Scroll to explore
+    </div>
+
+    <!-- Cards (scroll-snap) -->
+    <div class="cards-section" id="cardsSection">
+
+        <!-- Card 0: Intro / 1800 -->
+        <div class="card active" data-year="1800" data-pop="30000000">
+            <div class="card-inner">
+                <div class="card-year">1800</div>
+                <h2 class="card-title">A Vast Ocean of Buffalo</h2>
+                <figure class="card-image">
+                    <img src="images/buffalo-trade-illustration.webp" alt="Buffalo trade illustration, 19th century" loading="lazy">
+                    <figcaption>Buffalo trade illustration, 19th century.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis,
+                    the buffalo was everything — food, clothing, shelter, trade goods. The hunt was
+                    communal, organized, and sustainable. It had been that way for generations.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 1: 1825 Fur Trade -->
+        <div class="card" data-year="1825" data-pop="25000000">
+            <div class="card-inner">
+                <div class="card-year">1825</div>
+                <h2 class="card-title"><span class="flag">🇨🇦</span> The Fur Trade Intensifies</h2>
+                <figure class="card-image">
+                    <img src="images/metis-brigades.jpg" alt="Métis buffalo hunt, showing organized brigades on the prairie" loading="lazy">
+                    <figcaption>Métis buffalo hunt brigades on the prairie.</figcaption>
+                </figure>
+                <p class="card-text">
+                    The Hudson's Bay Company and North West Company competed for control of the plains.
+                    Métis freighters and hunters became the backbone of the trade. Pemmican — dried
+                    buffalo meat mixed with fat — fed the fur trade. The buffalo economy was booming,
+                    but the pressure was building.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 2: 1850 Decline Begins -->
+        <div class="card" data-year="1850" data-pop="20000000">
+            <div class="card-inner">
+                <div class="card-year">1850</div>
+                <h2 class="card-title">The Hide Trade Takes Off</h2>
+                <figure class="card-image">
+                    <img src="images/buffalo-bones-cpr-boxcar.jpg" alt="Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan" loading="lazy">
+                    <figcaption>Buffalo bones ready for loading on Canadian Pacific Railway boxcar, Moose Jaw, Saskatchewan.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Commercial hunting for buffalo robes expanded east. For every robe that made it to
+                    market, several more buffalo were killed and left in the sun. The trade obscured the
+                    true death toll. By the 1870s, the robe trade would peak at 250,000 per year.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 3: 1865 Railroads -->
+        <div class="card" data-year="1865" data-pop="13500000">
+            <div class="card-inner">
+                <div class="card-year">1865</div>
+                <h2 class="card-title">Railroads Reach the Plains</h2>
+                <figure class="card-image">
+                    <img src="images/bison-skull-pile.jpg" alt="Photograph from the mid-1870s of a pile of American bison skulls waiting to be ground for fertilizer" loading="lazy">
+                    <figcaption>A pile of American bison skulls waiting to be ground for fertilizer, mid-1870s.</figcaption>
+                </figure>
+                <p class="card-text">
+                    Railroads made mass slaughter possible. Hunters fired from train windows, leaving
+                    carcasses to rot. The bone trade shipped tons of remains east for fertilizer and
+                    sugar refining. The AT&SF depot at Dodge City shipped 200,000 hides per year.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 4: 1870 Great Collapse -->
+        <div class="card" data-year="1870" data-pop="5500000">
+            <div class="card-inner">
+                <div class="card-year">1870</div>
+                <h2 class="card-title">The Great Collapse</h2>
+                <figure class="card-image">
+                    <img src="images/bison-hides-dodge-city.jpg" alt="Rath & Wright's buffalo hide yard in 1878, showing 40,000 buffalo hides, Dodge City, Kansas" loading="lazy">
+                    <figcaption>Rath & Wright's buffalo hide yard, 1878 — 40,000 buffalo hides, Dodge City, Kansas.</figcaption>
+                </figure>
+                <p class="card-text">
+                    The population crashed from millions to hundreds of thousands in just a few years.
+                    Métis communities faced starvation as the buffalo economy vanished. In 1874, the
+                    U.S. Army openly championed killing buffalo to force Indigenous nations onto
+                    reservations. Gen. Philip Sheridan told Congress: "Let them kill, skin, and sell
+                    until the buffalo are exterminated."
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 5: 1880 Bone Trade -->
+        <div class="card" data-year="1880" data-pop="395000">
+            <div class="card-inner">
+                <div class="card-year">1880</div>
+                <h2 class="card-title"><span class="flag">🇨🇦</span> Picking the Bones Clean</h2>
+                <figure class="card-image">
+                    <img src="images/gathering-buffalo-bones.jpg" alt="Gathering Buffalo Bones on the Prairie, Alberta, Canada" loading="lazy">
+                    <figcaption>Gathering Buffalo Bones on the Prairie, Alberta, Canada.</figcaption>
+                </figure>
+                <p class="card-text">
+                    With the herds gone, a new industry rose: bone picking. Settlers and Indigenous
+                    people gathered bleached skeletons from the prairie. The CPR shipped boxcars full
+                    of bones east — to Regina ("Pile of Bones"), Moose Jaw, and Medicine Hat. The
+                    bones became fertilizer, bone char, and buttons. Nothing was wasted except the
+                    buffalo itself.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 6: 1889 Last of the Herds -->
+        <div class="card" data-year="1889" data-pop="653">
+            <div class="card-inner">
+                <div class="card-year">1889</div>
+                <h2 class="card-title">The Last of the Herds</h2>
+                <figure class="card-image">
+                    <img src="images/bison-skull-pile.jpg" alt="Pile of bison skulls from the 1870s" loading="lazy">
+                    <figcaption>The skulls told the story the living no longer could.</figcaption>
+                </figure>
+                <p class="card-text">
+                    William Temple Hornaday's 1889 Smithsonian report documented the final toll: fewer
+                    than 1,000 buffalo remained in the wild. The species was functionally extinct. The
+                    Métis homeland was shattered. The plains were silent.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 7: 1900 End -->
+        <div class="card card-end" data-year="1900" data-pop="500">
+            <div class="card-inner">
+                <div class="card-year">1900</div>
+                <h2 class="card-title">Functionally Extinct</h2>
+                <p class="card-text">
+                    By 1900, roughly 500 buffalo remained — scattered in private herds and a small
+                    wild population in Yellowstone. In a single lifetime, the most abundant large
+                    mammal in North America had been reduced to nearly nothing.
+                </p>
+                <p class="card-text" style="margin-top: 1rem;">
+                    The Métis lost their economy, their food sovereignty, and the foundation of their
+                    way of life. The plains were opened for settlement. The destruction was the point.
+                </p>
+                <p class="card-text" style="margin-top: 1.5rem; font-style: italic; color: var(--color-text-muted);">
+                    Conservation efforts in the early 1900s brought the species back from the brink.
+                    Today, roughly 500,000 buffalo exist — most in commercial herds. A few wild,
+                    free-roaming populations remain.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer spacer -->
+        <div class="footer">
+            Created by Bayard deVries •
+            <a href="https://github.com/Bayarddevries/buffalo-counter" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </div>
+
+    <!-- Collapsible Sources Bar -->
+    <div class="sources-bar" id="sourcesBar">
+        <button class="sources-toggle" id="sourcesToggle" aria-expanded="false" aria-controls="sourcesPanel">
+            <span class="sources-toggle-icon" id="sourcesToggleIcon">▲</span>
+            <span>Sources &amp; References</span>
+        </button>
+        <div class="sources-panel" id="sourcesPanel" role="region" aria-label="Sources and references" hidden>
+            <h3>Population Estimates &amp; Data</h3>
+            <ul>
+                <li>Seton, Ernest Thompson. (1909). <em>Life-Histories of Northern Animals</em>, Vol. 1. — Estimated ~60 million pre-1800.</li>
+                <li>Flores, Dan. (2016). <em>American Serengeti</em>. University of Oklahoma Press. — Estimated ~30 million; carrying capacity analysis.</li>
+                <li>Roe, Frank Gilbert. (1951). <em>The North American Buffalo</em>. University of Toronto Press. — Critical analysis of all population estimates.</li>
+                <li>Hornaday, William Temple. (1889). "The Extermination of the American Bison." <em>Smithsonian Institution Annual Report</em>. — First systematic count of remaining buffalo.</li>
+            </ul>
+            <h3>Historical Events &amp; Mechanisms</h3>
+            <ul>
+                <li>Isenberg, Andrew C. (2000). <em>The Destruction of the Bison</em>. Cambridge University Press. — Hide trade, railroads, military campaigns.</li>
+                <li>Brown, Dee. (1970). <em>Bury My Heart at Wounded Knee</em>. Holt, Rinehart and Winston.</li>
+                <li>U.S. Congress. (1874). <em>Congressional Globe</em>, 43rd Congress. — Sheridan's testimony on buffalo destruction policy.</li>
+            </ul>
+            <h3>Métis History &amp; Culture</h3>
+            <ul>
+                <li>Peterson, Jacqueline. (1985). "Many Roads to Red River." <em>The People in Between</em>. Gabriel Dumont Institute.</li>
+                <li>Barkwell, Lawrence J., ed. (2011). <em>The Métis Homeland</em>. Louis Riel Institute.</li>
+            </ul>
+            <p class="sources-note">
+                Population data points are interpolated between published estimates. The exact numbers
+                shown are approximations — the pre-collapse population is debated. The scale of collapse,
+                however, is undisputed.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ===================================
+        // Data
+        // ===================================
+
+        // Authoritative population data from Buffalo data Google Doc
+        const DATA_POINTS = [
+            { year: 1800, pop: 30000000 },
+            { year: 1850, pop: 20000000 },
+            { year: 1865, pop: 13500000 },
+            { year: 1870, pop: 5500000 },
+            { year: 1880, pop: 395000 },
+            { year: 1889, pop: 653 },
+            { year: 1900, pop: 500 },
+        ];
+
+        const EVENT_YEARS = [1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900];
+
+        const STATUS = {
+            stable: 'Population stable',
+            declining: 'Population declining',
+            critical: 'Population critical — near extinction',
+            extinct: 'Functionally extinct',
+        };
+
+        // ===================================
+        // State
+        // ===================================
+        let currentYear = 1800;
+        let currentPop = 30000000;
+        let activeCardIndex = 0;
+        let ticking = false;
+
+        // ===================================
+        // DOM
+        // ===================================
+        const $year = document.getElementById('counterYear');
+        const $pop = document.getElementById('counterValue');
+        const $status = document.getElementById('counterStatus');
+        const $fill = document.getElementById('timelineFill');
+        const $dots = document.getElementById('timelineDots');
+        const $prompt = document.getElementById('scrollPrompt');
+        const $cards = document.querySelectorAll('.card[data-year]');
+        const $section = document.getElementById('cardsSection');
+
+        // ===================================
+        // Utility
+        // ===================================
+        function formatNumber(n) {
+            try { return n.toLocaleString('en-US'); }
+            catch { return String(n); }
+        }
+
+        function interpolatePop(year) {
+            if (year <= DATA_POINTS[0].year) return DATA_POINTS[0].pop;
+            if (year >= DATA_POINTS[DATA_POINTS.length - 1].year) return DATA_POINTS[DATA_POINTS.length - 1].pop;
+
+            for (let i = 0; i < DATA_POINTS.length - 1; i++) {
+                if (year >= DATA_POINTS[i].year && year <= DATA_POINTS[i + 1].year) {
+                    if (year === DATA_POINTS[i].year) return DATA_POINTS[i].pop;
+                    if (year === DATA_POINTS[i + 1].year) return DATA_POINTS[i + 1].pop;
+                    const t = (year - DATA_POINTS[i].year) / (DATA_POINTS[i + 1].year - DATA_POINTS[i].year);
+                    return Math.round(DATA_POINTS[i].pop + t * (DATA_POINTS[i + 1].pop - DATA_POINTS[i].pop));
+                }
+            }
+            return 0;
+        }
+
+        function getStatus(pop) {
+            if (pop < 1000) return 'extinct';
+            if (pop < 1000000) return 'critical';
+            if (pop < 10000000) return 'declining';
+            return 'stable';
+        }
+
+        // ===================================
+        // Timeline dots
+        // ===================================
+        function createTimelineDots() {
+            $dots.innerHTML = '';
+            EVENT_YEARS.forEach((year, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'timeline-dot' + (i === 0 ? ' active' : '');
+                dot.dataset.index = i;
+                $dots.appendChild(dot);
+            });
+        }
+
+        // ===================================
+        // Update display from year
+        // ===================================
+        function updateFromYear(year) {
+            currentYear = Math.round(year);
+            currentPop = interpolatePop(currentYear);
+
+            // Counter
+            $year.textContent = currentYear;
+            $pop.textContent = formatNumber(currentPop);
+
+            // Counter color
+            const st = getStatus(currentPop);
+            $pop.className = 'counter-value';
+            if (st === 'critical' || st === 'extinct') $pop.classList.add('critical');
+            else if (st === 'declining') $pop.classList.add('warning');
+
+            // Status text
+            $status.textContent = STATUS[st];
+
+            // Timeline fill
+            const progress = (currentYear - 1800) / (1900 - 1800);
+            $fill.style.width = Math.min(100, Math.max(0, progress * 100)) + '%';
+
+            // Timeline dots
+            const dots = $dots.querySelectorAll('.timeline-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', currentYear >= EVENT_YEARS[i]);
+            });
+        }
+
+        // ===================================
+        // Card activation via IntersectionObserver
+        // ===================================
+        function setupCardObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const card = entry.target;
+                    const year = parseInt(card.dataset.year, 10);
+
+                    // Card is "active" when it's mostly in view
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                        card.classList.add('active');
+                        // Update counter to this card's year
+                        updateFromYear(year);
+
+                        // Hide scroll prompt after first card scroll
+                        if ($prompt) $prompt.style.display = 'none';
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+            }, {
+                root: $section,
+                threshold: 0.5,
+            });
+
+            $cards.forEach(card => observer.observe(card));
+        }
+
+        // ===================================
+        // Smooth counter interpolation during scroll
+        // Between cards, we interpolate the counter
+        // ===================================
+        function setupScrollInterpolation() {
+            $section.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        updateFromScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+        }
+
+        function updateFromScroll() {
+            const sectionRect = $section.getBoundingClientRect();
+            const sectionTop = sectionRect.top;
+            const sectionHeight = sectionRect.height;
+            const viewportCenter = sectionTop + sectionHeight / 2;
+
+            // Find which two cards the viewport center is between
+            let topCard = null;
+            let bottomCard = null;
+
+            $cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardCenter = rect.top + rect.height / 2;
+                if (cardCenter <= viewportCenter) {
+                    if (!topCard || rect.top > topCard.getBoundingClientRect().top) {
+                        topCard = card;
+                    }
+                }
+                if (cardCenter > viewportCenter) {
+                    if (!bottomCard || rect.top < bottomCard.getBoundingClientRect().top) {
+                        bottomCard = card;
+                    }
+                }
+            });
+
+            if (topCard && bottomCard) {
+                const topYear = parseInt(topCard.dataset.year, 10);
+                const bottomYear = parseInt(bottomCard.dataset.year, 10);
+                const topRect = topCard.getBoundingClientRect();
+                const botRect = bottomCard.getBoundingClientRect();
+
+                const topCenter = topRect.top + topRect.height / 2;
+                const botCenter = botRect.top + botRect.height / 2;
+                const range = botCenter - topCenter;
+                const progress = range > 0 ? (viewportCenter - topCenter) / range : 0;
+                const clampedProgress = Math.max(0, Math.min(1, progress));
+
+                const interpolatedYear = topYear + clampedProgress * (bottomYear - topYear);
+                updateFromYear(interpolatedYear);
+            } else if (topCard) {
+                updateFromYear(parseInt(topCard.dataset.year, 10));
+            } else if (bottomCard) {
+                updateFromYear(parseInt(bottomCard.dataset.year, 10));
+            }
+        }
+
+        // ===================================
+        // Splash
+        // ===================================
+        function setupSplash() {
+            const splash = document.getElementById('splash');
+            const btn = document.getElementById('splashEnter');
+            if (!splash || !btn) return;
+
+            btn.addEventListener('click', () => {
+                splash.classList.add('hidden');
+                splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+                setTimeout(() => { if (splash.parentNode) splash.remove(); }, 600);
+            });
+        }
+
+        // ===================================
+        // Sources toggle
+        // ===================================
+        function setupSources() {
+            const toggle = document.getElementById('sourcesToggle');
+            const panel = document.getElementById('sourcesPanel');
+            if (!toggle || !panel) return;
+
+            toggle.addEventListener('click', () => {
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                if (expanded) panel.setAttribute('hidden', '');
+                else panel.removeAttribute('hidden');
+            });
+
+            panel.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    toggle.setAttribute('aria-expanded', 'false');
+                    panel.setAttribute('hidden', '');
+                    toggle.focus();
+                }
+            });
+        }
+
+        // ===================================
+        // Init
+        // ===================================
+        function init() {
+            createTimelineDots();
+            updateFromYear(1800);
+            setupCardObserver();
+            setupScrollInterpolation();
+            setupSplash();
+            setupSources();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

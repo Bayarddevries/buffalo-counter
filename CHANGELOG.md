@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2026-05-13] v1.5 — Scroll-Driven Snap Layout (Current Production)
+
+- **MAJOR**: Replaced schedule-driven auto-play animation with scroll-snap card layout
+- CSS `scroll-snap-type: y mandatory` for full-page snap cards
+- `IntersectionObserver` for card activation at threshold 0.5
+- Scroll position interpolation (rAF-throttled) for smooth counter updates between cards
+- Timeline fill width tracks scroll progress
+- Dynamic population color: green (stable, 30M) → yellow/orange (declining) → red (critical) → dark red (extinct, <1000)
+- Counter value font: IM Fell English (17th century printing press aesthetic)
+- Body font: IBM Plex Sans
+- Splash overlay removed on click with transitionend cleanup
+- Collapsible sources bar at bottom of page
+- 8 snap cards: 1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900
+
 ## [2026-05-13] v1.4 — Copy Humanization & Splash Polish
 
 - Humanize copy: remove em dashes, past tense, conversational voice

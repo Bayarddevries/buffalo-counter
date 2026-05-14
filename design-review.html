@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buffalo Counter — Design Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Smokum&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Spectral:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;700&family=DM+Sans:wght@400;500;700&family=Inter:wght@300;400;600;700&family=IBM+Plex+Sans:wght@300;400;600;700&family=Overpass:wght@300;400;600;700&family=Outfit:wght@300;400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ===== RESET & BASE ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #050505;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    padding-bottom: 4rem;
+}
+
+/* ===== NAV ===== */
+.top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,5,5,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.top-nav h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c49a3a;
+    flex-shrink: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.nav-links a:hover {
+    color: #e8e8e8;
+    background: rgba(255,255,255,0.06);
+}
+
+/* ===== SECTION HEADERS ===== */
+.section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 1rem;
+}
+
+.section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #e8e8e8;
+    margin-bottom: 0.25rem;
+}
+
+.section-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+/* ===== OPTION CARDS ===== */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 540px), 1fr));
+    gap: 1.5rem;
+    padding: 0 1.5rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.option-card {
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    cursor: pointer;
+}
+
+.option-card:hover {
+    border-color: rgba(196,154,58,0.3);
+}
+
+.option-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.option-header h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.option-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.badge-a { background: rgba(45,106,79,0.15); color: #2d6a4f; }
+.badge-b { background: rgba(122,158,126,0.15); color: #7a9e7e; }
+.badge-c { background: rgba(42,157,143,0.15); color: #2a9d8f; }
+.badge-d { background: rgba(196,154,58,0.15); color: #c49a3a; }
+.badge-e { background: rgba(196,154,58,0.15); color: #c49a3a; }
+.badge-scroll { background: rgba(231,111,81,0.15); color: #e76f51; }
+
+.option-desc {
+    padding: 1rem 1.5rem;
+    font-size: 0.85rem;
+    color: #aaa;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.option-preview {
+    padding: 1.5rem;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ===== OPTION A PREVIEW — Filmstrip ===== */
+.preview-a {
+    background: #0a0a0a;
+}
+
+.preview-a .filmstrip {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+}
+
+.preview-a .film-item {
+    flex-shrink: 0;
+    width: 180px;
+    scroll-snap-align: start;
+}
+
+.preview-a .film-img {
+    width: 100%;
+    height: 120px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #555;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+.preview-a .film-year {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    color: #c49a3a;
+    font-weight: 700;
+}
+
+.preview-a .film-title {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.85rem;
+    color: #e8e8e8;
+    line-height: 1.3;
+}
+
+/* ===== OPTION B PREVIEW — HUD ===== */
+.preview-b {
+    background: #0a0a0a;
+}
+
+.preview-b .hud {
+    position: relative;
+    padding: 1rem;
+}
+
+.preview-b .hud-counter {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d6a4f;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.preview-b .hud-year {
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.preview-b .hud-event {
+    background: #141414;
+    border: 1px solid rgba(196,154,58,0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.preview-b .hud-event.active {
+    border-color: rgba(196,154,58,0.4);
+    background: #1a1a1a;
+}
+
+.preview-b .hud-event-icon {
+    width: 32px;
+    height: 32px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.preview-b .hud-event h4 {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.95rem;
+    color: #e8e8e8;
+    margin-bottom: 0.25rem;
+}
+
+.preview-b .hud-event p {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.4;
+}
+
+/* ===== OPTION C PREVIEW — Full Counter + Bottom Sheet ===== */
+.preview-c {
+    background: #0a0a0a;
+}
+
+.preview-c .full-counter {
+    text-align: center;
+    padding: 2rem 0 1rem;
+}
+
+.preview-c .full-counter .big-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 700;
+    color: #2a9d8f;
+    line-height: 1;
+}
+
+.preview-c .full-counter .big-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.preview-c .bottom-sheet {
+    position: relative;
+    margin-top: 1.5rem;
+    background: #111;
+    border-top: 2px solid rgba(196,154,58,0.3);
+    border-radius: 12px 12px 0 0;
+    padding: 1.25rem;
+}
+
+.preview-c .bottom-sheet::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+}
+
+.preview-c .bottom-sheet h4 {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1rem;
+    color: #e8e8e8;
+    margin-bottom: 0.5rem;
+}
+
+.preview-c .bottom-sheet p {
+    font-size: 0.85rem;
+    color: #888;
+    line-height: 1.5;
+}
+
+.preview-c .bottom-sheet .sheet-img {
+    width: 100%;
+    height: 80px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #555;
+}
+
+/* ===== OPTION D PREVIEW — "The Last Herd" ===== */
+.preview-d {
+    background: #080808;
+}
+
+.preview-d .last-herd {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.preview-d .hero-section {
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.preview-d .hero-section .hl-year {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+}
+
+.preview-d .hero-section .hl-counter {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 5rem);
+    font-weight: 700;
+    color: #c49a3a;
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(196,154,58,0.25);
+}
+
+.preview-d .hero-section .hl-subtitle {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.95rem;
+    color: #888;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.preview-d .event-card {
+    background: #111;
+    border: 1px solid rgba(196,154,58,0.10);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.preview-d .event-card.active {
+    border-color: rgba(196,154,58,0.35);
+    box-shadow: 0 0 20px rgba(196,154,58,0.08);
+}
+
+.preview-d .card-img-placeholder {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(180deg, transparent 50%, #080808 100%), #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #555;
+    position: relative;
+}
+
+.preview-d .card-year-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #c49a3a;
+    background: rgba(8,8,8,0.7);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.preview-d .card-body {
+    padding: 1rem 1.25rem;
+}
+
+.preview-d .card-body h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e8e8e8;
+    margin-bottom: 0.5rem;
+}
+
+.preview-d .card-body p {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.88rem;
+    color: #999;
+    line-height: 1.55;
+}
+
+.preview-d .card-source {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.72rem;
+    color: #555;
+}
+
+.preview-d .card-source::before {
+    content: '📖 ';
+}
+
+.preview-d .timeline-dots {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1rem 0.5rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.preview-d .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #333;
+}
+
+.preview-d .dot.passed { background: #c49a3a; }
+.preview-d .dot.active { box-shadow: 0 0 0 4px rgba(196,154,58,0.25); background: #c49a3a; }
+
+/* ===== SCROLL PREVIEW ===== */
+.preview-scroll {
+    background: #0a0a0a;
+}
+
+.preview-scroll .scroll-demo {
+    position: relative;
+}
+
+.preview-scroll .scroll-counter-fixed {
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.95);
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(196,154,58,0.15);
+    z-index: 10;
+}
+
+.preview-scroll .scroll-counter-fixed .sc-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d6a4f;
+}
+
+.preview-scroll .scroll-counter-fixed .sc-year {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.preview-scroll .scroll-card {
+    height: 300px;
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.preview-scroll .scroll-card.dimmed {
+    opacity: 0.3;
+    filter: grayscale(1);
+}
+
+.preview-scroll .scroll-card .sc-img {
+    width: 100%;
+    height: 60px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #555;
+}
+
+.preview-scroll .scroll-card h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    color: #e8e8e8;
+    margin-bottom: 0.5rem;
+}
+
+.preview-scroll .scroll-card p {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* ===== COLOR PALETTES ===== */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1rem;
+    padding: 0 1.5rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.color-card {
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 1.5rem;
+}
+
+.color-card h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #e8e8e8;
+}
+
+.swatch-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.swatch {
+    flex: 1;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+}
+
+.swatch-label {
+    font-size: 0.65rem;
+    color: #666;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.gradient-preview {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+.counter-demo-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.mini-counter {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+}
+
+.mini-counter .num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.mini-counter .label {
+    font-size: 0.65rem;
+    color: #666;
+}
+
+/* ===== FONT SHOWCASE ===== */
+.font-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+    gap: 1rem;
+    padding: 0 1.5rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.font-card {
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.font-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.font-pair-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.font-pair-name strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #e8e8e8;
+    font-family: 'Inter', sans-serif;
+}
+
+.font-sample-counter {
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.font-sample-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+    color: #e8e8e8;
+}
+
+.font-sample-body {
+    font-size: 0.92rem;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.font-verdict {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.verdict-strong { background: rgba(45,106,79,0.15); color: #2d6a4f; }
+.verdict-ok { background: rgba(196,154,58,0.15); color: #c49a3a; }
+.verdict-skip { background: rgba(196,30,58,0.15); color: #c41e3a; }
+
+/* Font families */
+.f-rye .font-sample-counter,
+.f-rye .font-sample-title { font-family: 'Rye', serif; }
+.f-rye .font-sample-body { font-family: 'DM Sans', sans-serif; }
+
+.f-smokum .font-sample-counter,
+.f-smokum .font-sample-title { font-family: 'Smokum', cursive; }
+.f-smokum .font-sample-body { font-family: 'Inter', sans-serif; }
+
+.f-playfair .font-sample-counter,
+.f-playfair .font-sample-title { font-family: 'Playfair Display', serif; }
+.f-playfair .font-sample-body { font-family: 'Space Grotesk', sans-serif; }
+
+.f-imfell .font-sample-counter,
+.f-imfell .font-sample-title { font-family: 'IM Fell English', serif; }
+.f-imfell .font-sample-body { font-family: 'IBM Plex Sans', sans-serif; }
+
+.f-spectral .font-sample-counter,
+.f-spectral .font-sample-title { font-family: 'Spectral', serif; }
+.f-spectral .font-sample-body { font-family: 'Outfit', sans-serif; }
+
+.f-garamond .font-sample-counter,
+.f-garamond .font-sample-title { font-family: 'EB Garamond', serif; }
+.f-garamond .font-sample-body { font-family: 'Overpass', sans-serif; }
+
+.f-cinzel .font-sample-counter,
+.f-cinzel .font-sample-title { font-family: 'Cinzel', serif; }
+.f-cinzel .font-sample-body { font-family: 'Syne', sans-serif; }
+
+.f-lora .font-sample-counter,
+.f-lora .font-sample-title { font-family: 'Lora', serif; }
+.f-lora .font-sample-body { font-family: 'DM Sans', sans-serif; }
+
+.f-prod .font-sample-counter,
+.f-prod .font-sample-title { font-family: 'Space Grotesk', sans-serif; }
+.f-prod .font-sample-body { font-family: 'Crimson Text', serif; }
+
+/* ===== COMPARISON TABLE ===== */
+.comparison-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.comparison-table th {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+}
+
+.comparison-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #ccc;
+    vertical-align: top;
+}
+
+.comparison-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+}
+
+.tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.03em;
+}
+
+.tag-best { background: rgba(45,106,79,0.2); color: #2d6a4f; }
+.tag-good { background: rgba(196,154,58,0.15); color: #c49a3a; }
+.tag-wip { background: rgba(99,102,241,0.15); color: #6366f1; }
+
+/* ===== FOOTER ===== */
+.page-footer {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 0.8rem;
+    color: #333;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    max-width: 1200px;
+    margin: 3rem auto 0;
+}
+
+.page-footer a {
+    color: #c49a3a;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .color-grid { grid-template-columns: 1fr; }
+    .font-grid { grid-template-columns: 1fr; }
+    .comparison-table { font-size: 0.75rem; }
+    .comparison-table td, .comparison-table th { padding: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="top-nav">
+    <h1>Buffalo Counter</h1>
+    <div class="nav-links">
+        <a href="#options">Layout Options</a>
+        <a href="#colors">Color Palettes</a>
+        <a href="#fonts">Font Pairs</a>
+        <a href="#compare">Comparison</a>
+        <a href="#scroll">Scroll Mode</a>
+    </div>
+</nav>
+
+<!-- ===== SECTION 1: LAYOUT OPTIONS ===== -->
+<div class="section" id="options">
+    <h2 class="section-title">Layout Options</h2>
+    <p class="section-subtitle">Four different approaches to showing the counter + events + images. These existed as separate HTML files.</p>
+</div>
+
+<div class="options-grid">
+
+    <!-- OPTION A: Filmstrip Events -->
+    <div class="option-card">
+        <div class="option-header">
+            <h3>Option A</h3>
+            <span class="option-badge badge-a">Filmstrip Events</span>
+        </div>
+        <div class="option-desc">
+            Events shown as a horizontal filmstrip. Each event has an image + title. User scrolls through them horizontally while the counter stays fixed at top. Simple, cinematic.
+        </div>
+        <div class="option-preview preview-a">
+            <div class="filmstrip">
+                <div class="film-item">
+                    <div class="film-img">🐃 herds on the Plains</div>
+                    <div class="film-year">1800</div>
+                    <div class="film-title">The Herds</div>
+                </div>
+                <div class="film-item">
+                    <div class="film-img">🏔️ Métis buffalo brigade</div>
+                    <div class="film-year">1830</div>
+                    <div class="film-title">🇨🇦 Fur Trade Era</div>
+                </div>
+                <div class="film-item">
+                    <div class="film-img">☠️ Skull pile — Latscha & Phillips</div>
+                    <div class="film-year">1870</div>
+                    <div class="film-title">The Great Collapse</div>
+                </div>
+                <div class="film-item">
+                    <div class="film-img">🔫 Hides at Dodge City</div>
+                    <div class="film-year">1874</div>
+                    <div class="film-title">US Army Campaigns</div>
+                </div>
+                <div class="film-item">
+                    <div class="film-img">🚂 CPR bone shipment</div>
+                    <div class="film-year">1880s</div>
+                    <div class="film-title">🇨🇦 Bone Trade</div>
+                </div>
+                <div class="film-item">
+                    <div class="film-img">Bones gathered in the field</div>
+                    <div class="film-year">1890</div>
+                    <div class="film-title">Fewer Than 1,000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION B: Compact HUD + Full Events -->
+    <div class="option-card">
+        <div class="option-header">
+            <h3>Option B</h3>
+            <span class="option-badge badge-b">HUD + Expandable</span>
+        </div>
+        <div class="option-desc">
+            Compact heads-up display at top showing just the counter and year. Events expand as a full-screen list below. Each event has an icon, title, and description. Dense and information-rich.
+        </div>
+        <div class="option-preview preview-b">
+            <div class="hud">
+                <div class="hud-counter">13,500,000</div>
+                <div class="hud-year">1865</div>
+                <div class="hud-event">
+                    <div class="hud-event-icon">✅</div>
+                    <div>
+                        <h4>1830 — The Fur Trade Begins</h4>
+                        <p>Buffalo robes become fashionable in Europe and eastern US. Commercial markets emerge.</p>
+                    </div>
+                </div>
+                <div class="hud-event active">
+                    <div class="hud-event-icon">⚡</div>
+                    <div>
+                        <h4>1865 — Railroads Reach the Plains</h4>
+                        <p>Railroads enable mass slaughter from train windows. The killing accelerates.</p>
+                    </div>
+                </div>
+                <div class="hud-event">
+                    <div class="hud-event-icon">⬜</div>
+                    <div>
+                        <h4>1870 — The Great Collapse</h4>
+                        <p>Population drops from 30 million to 5 million in a single decade.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION C: Full Counter + Bottom Sheet Events -->
+    <div class="option-card">
+        <div class="option-header">
+            <h3>Option C</h3>
+            <span class="option-badge badge-c">Counter + Bottom Sheet</span>
+        </div>
+        <div class="option-desc">
+            Full-screen counter dominates the view. Event details slide up from the bottom as a sheet. User controls pace — click events to pull up details. Dramatic and counter-focused.
+        </div>
+        <div class="option-preview preview-c">
+            <div class="full-counter">
+                <div class="big-num">5,500,000</div>
+                <div class="big-label">plains buffalo remaining — 1870</div>
+            </div>
+            <div class="bottom-sheet">
+                <h4>🇨🇦 The Great Collapse</h4>
+                <p>Population drops from 30 million to 5 million in a decade. Railroads enable commercial hunters to kill thousands from train windows, leaving carcasses to rot on the plains.</p>
+                <div class="sheet-img">☠️ Latscha & Phillips — Buffalo Skull Pile, 1870s</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTION D: "The Last Herd" — Card Illumination -->
+    <div class="option-card">
+        <div class="option-header">
+            <h3>Option D</h3>
+            <span class="option-badge badge-d">"The Last Herd"</span>
+        </div>
+        <div class="option-desc">
+            Most elaborated option. Cards in a responsive grid that illuminate as the timeline reaches their year. Each card has an image, year badge, title, description, and source. Deterministic schedule maps time to year. This was iterated 8 times (v1 through v8 current).
+        </div>
+        <div class="option-preview preview-d">
+            <div class="last-herd">
+                <div class="hero-section">
+                    <div class="hl-year">1870</div>
+                    <div class="hl-counter">5,500,000</div>
+                    <div class="hl-subtitle">The Great Collapse</div>
+                </div>
+
+                <div class="event-card active">
+                    <div class="card-img-placeholder">
+                        ☠️ buffalo-skull-pile.jpg (302KB)
+                        <span class="card-year-badge">1870</span>
+                    </div>
+                    <div class="card-body">
+                        <h4>The Great Collapse</h4>
+                        <p>Population drops from 30 million to 5 million in a decade. Railroads enabled commercial hunters to slaughter thousands from train windows.</p>
+                    </div>
+                    <div class="card-source">"Skin and Bones: The Decimation of the Plains Buffalo" — Phillips, Mount Royal University</div>
+                </div>
+
+                <div class="timeline-dots">
+                    <span class="dot passed"></span>
+                    <span class="dot passed"></span>
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 2: COLOR PALETTES ===== -->
+<div class="section" id="colors">
+    <h2 class="section-title">Color Palettes</h2>
+    <p class="section-subtitle">Six counter color transitions from healthy (abundant) to dying (endangered). Each shows the three states: 30M → mid-point → 500.</p>
+</div>
+
+<div class="color-grid">
+
+    <!-- Palette A: Forest Green / Brass / Crimson -->
+    <div class="color-card">
+        <h4>A — Forest, Brass, Crimson</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#2d6a4f"></div>
+            <div class="swatch" style="background:#c49a3a"></div>
+            <div class="swatch" style="background:#c41e3a"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#2d6a4f">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#c49a3a">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#c41e3a">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+    <!-- Palette B: Sage / Gold / Rust -->
+    <div class="color-card">
+        <h4>B — Sage, Gold, Rust</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#7a9e7e"></div>
+            <div class="swatch" style="background:#d4a843"></div>
+            <div class="swatch" style="background:#b7410e"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#7a9e7e">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#d4a843">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#b7410e">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+    <!-- Palette C: Teal / Amber / Vermillion -->
+    <div class="color-card">
+        <h4>C — Teal, Amber, Vermillion</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#2a9d8f"></div>
+            <div class="swatch" style="background:#e9c46a"></div>
+            <div class="swatch" style="background:#e63946"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#2a9d8f">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#e9c46a">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#e63946">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+    <!-- Palette D: Olive / Copper / Oxblood -->
+    <div class="color-card">
+        <h4>D — Olive, Copper, Oxblood</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#606c38"></div>
+            <div class="swatch" style="background:#dda15e"></div>
+            <div class="swatch" style="background:#7b2d26"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#606c38">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#dda15e">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#7b2d26">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+    <!-- Palette E: Current Production -->
+    <div class="color-card">
+        <h4>E — Current Production (Yellow-green / Gold / Crimson)</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#a8b86e"></div>
+            <div class="swatch" style="background:#c49a3a"></div>
+            <div class="swatch" style="background:#c41e3a"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#a8b86e">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#c49a3a">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#c41e3a">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+    <!-- Palette F: Moss / Burnt Sienna -->
+    <div class="color-card">
+        <h4>F — Moss, Burnt Sienna, Brick</h4>
+        <div class="swatch-row">
+            <div class="swatch" style="background:#588157"></div>
+            <div class="swatch" style="background:#bc6c25"></div>
+            <div class="swatch" style="background:#9b2226"></div>
+        </div>
+        <div class="counter-demo-row">
+            <div class="mini-counter"><div class="num" style="color:#588157">30M</div><div class="label">1800</div></div>
+            <div class="mini-counter"><div class="num" style="color:#bc6c25">13.5M</div><div class="label">1865</div></div>
+            <div class="mini-counter"><div class="num" style="color:#9b2226">500</div><div class="label">1900</div></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 3: FONT PAIRS ===== -->
+<div class="section" id="fonts">
+    <h2 class="section-title">Font Pairs</h2>
+    <p class="section-subtitle">Eight font pairings tested for counter + body. Headings/counter vs body text. Current production uses Space Grotesk + Crimson Text.</p>
+</div>
+
+<div class="font-grid">
+
+    <!-- Current Production -->
+    <div class="font-card f-prod">
+        <span class="font-verdict verdict-strong">CURRENT</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Space Grotesk + Crimson Text</strong>
+                Production pairing
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#c41e3a">500</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Playfair + Space Grotesk -->
+    <div class="font-card f-playfair">
+        <span class="font-verdict verdict-strong">Strong</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Playfair Display + Space Grotesk</strong>
+                Editorial serif counter, modern sans body
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#e63946">500</div>
+        <div style="font-family:'Playfair Display',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- IM Fell English + IBM Plex Sans -->
+    <div class="font-card f-imfell">
+        <span class="font-verdict verdict-strong">Strong</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>IM Fell English + IBM Plex Sans</strong>
+                Historical feel, clean body
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#7b2d26">500</div>
+        <div style="font-family:'IM Fell English',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Spectral + Outfit -->
+    <div class="font-card f-spectral">
+        <span class="font-verdict verdict-ok">Interesting</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Spectral + Outfit</strong>
+                Contemporary serif, geometric body
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#b7410e">500</div>
+        <div style="font-family:'Spectral',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- EB Garamond + Overpass -->
+    <div class="font-card f-garamond">
+        <span class="font-verdict verdict-ok">Interesting</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>EB Garamond + Overpass</strong>
+                Classic literary, technical body
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#7b2d26">500</div>
+        <div style="font-family:'EB Garamond',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Lora + DM Sans -->
+    <div class="font-card f-lora">
+        <span class="font-verdict verdict-ok">Interesting</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Lora + DM Sans</strong>
+                Warm serif, clean sans body
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#c41e3a">500</div>
+        <div style="font-family:'Lora',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Cinzel + Syne -->
+    <div class="font-card f-cinzel">
+        <span class="font-verdict verdict-skip">Skip</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Cinzel + Syne</strong>
+                Monumental + futuristic — too stylized
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#9b2226">500</div>
+        <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Rye + DM Sans -->
+    <div class="font-card f-rye">
+        <span class="font-verdict verdict-skip">Skip</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Rye + DM Sans</strong>
+                Western novelty — too genre-specific
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#c41e3a">500</div>
+        <div style="font-family:'Rye',serif;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+    <!-- Smokum + Inter -->
+    <div class="font-card f-smokum">
+        <span class="font-verdict verdict-skip">Skip</span>
+        <div class="font-card-header">
+            <div class="font-pair-name">
+                <strong>Smokum + Inter</strong>
+                Decorative script — hard to read as counter
+            </div>
+        </div>
+        <div class="font-sample-counter" style="color:#c41e3a">500</div>
+        <div style="font-family:'Smokum',cursive;font-size:0.75rem;color:#888;margin-bottom:0.75rem;">1900 — The Last Herd</div>
+        <div class="font-sample-title">The Great Collapse</div>
+        <div class="font-sample-body">Population dropped from 30 million to 5 million in a single decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot on the plains.</div>
+    </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 4: SCROLL-DRIVEN MODE ===== -->
+<div class="section" id="scroll">
+    <h2 class="section-title">Scroll-Driven Mode</h2>
+    <p class="section-subtitle">Separate approach — user scrolls through event cards, counter interpolates based on scroll position. No play button, user controls the pace entirely.</p>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;">
+    <div style="background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin:0 1.5rem 3rem;">
+        <div class="option-header">
+            <h3>Scroll Prototype</h3>
+            <span class="option-badge badge-scroll">User-controlled pace</span>
+        </div>
+        <div style="padding:1rem 1.5rem;">
+            <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">
+                Instead of auto-playing, the user scrolls through cards. The counter interpolates the population for each card's scroll position. Cards dim when not at focal point, illuminate when scrolled into view. Snap-scroll makes each card land cleanly.
+            </p>
+        </div>
+        <div class="option-preview preview-scroll">
+            <div class="scroll-demo">
+                <div class="scroll-counter-fixed">
+                    <div class="sc-num">5,500,000</div>
+                    <div class="sc-year">1870</div>
+                </div>
+                <div style="height:12px"></div>
+                <div class="scroll-card dimmed">
+                    <div class="sc-img">🐃 herds on the Plains</div>
+                    <h4>1800 — The Herds</h4>
+                    <p>30 million buffalo roam the Great Plains from Canada to Mexico. The Métis hunt in organized brigades for food and trade.</p>
+                </div>
+                <div class="scroll-card dimmed">
+                    <div class="sc-img">🏔️ Métis buffalo brigade</div>
+                    <h4>🇨🇦 1830 — The Fur Trade Begins</h4>
+                    <p>Buffalo robes become fashionable in Europe. Red River cart brigades carry hides south. The Métis are pulled into commercial systems created by others.</p>
+                </div>
+                <div class="scroll-card">
+                    <div class="sc-img">☠️ buffalo-skull-pile.jpg</div>
+                    <h4>1870 — The Great Collapse</h4>
+                    <p>Population drops from 30 million to 5 million in a decade. Railroads enabled commercial hunters to slaughter thousands from train windows, leaving carcasses to rot.</p>
+                </div>
+                <div class="scroll-card">
+                    <div class="sc-img">🔫 Hides at Dodge City depot</div>
+                    <h4>1874 — US Army Campaigns</h4>
+                    <p>The military deliberately destroys buffalo herds to force Indigenous peoples onto reservations. "Kill the buffalo, save the man."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 5: COMPARISON TABLE ===== -->
+<div class="comparison-section" id="compare">
+    <h2 class="section-title">Head-to-Head</h2>
+    <p class="section-subtitle">All options compared across key dimensions.</p>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Dimension</th>
+                <th>A: Filmstrip</th>
+                <th>B: HUD</th>
+                <th>C: Bottom Sheet</th>
+                <th>D: Last Herd <span class="tag tag-best">most developed</span></th>
+                <th>Scroll</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Layout Stance</strong></td>
+                <td>Horizontal carousel</td>
+                <td>Compact + expandable</td>
+                <td>Big counter, slide-up</td>
+                <td>Grid cards, illuminate-on-reach <span class="tag tag-best">card illumination pattern</span></td>
+                <td>Vertical scroll, snap</td>
+            </tr>
+            <tr>
+                <td><strong>Counter Presence</strong></td>
+                <td>Fixed top, medium</td>
+                <td>Fixed top, compact</td>
+                <td>Full-screen dominance <span class="tag tag-best">most dramatic</span></td>
+                <td>Fixed top, hero-size</td>
+                <td>Sticky top, interpolated</td>
+            </tr>
+            <tr>
+                <td><strong>Image Integration</strong></td>
+                <td>Every event has one <span class="tag tag-good">good</span></td>
+                <td>Minimal iconography</td>
+                <td>One per event, in sheet</td>
+                <td>Every card has image + gradient overlay <span class="tag tag-best">best</span></td>
+                <td>Every card has one</td>
+            </tr>
+            <tr>
+                <td><strong>Interaction</strong></td>
+                <td>Scroll horizontal</td>
+                <td>Click to expand</td>
+                <td>Tap events to slide up</td>
+                <td>Play/pause, auto-illuminate</td>
+                <td>User scrolls freely</td>
+            </tr>
+            <tr>
+                <td><strong>Development State</strong></td>
+                <td>Untracked mockup <span class="tag tag-wip">9KB</span></td>
+                <td>Untracked mockup <span class="tag tag-wip">9KB</span></td>
+                <td>Untracked mockup <span class="tag tag-wip">13KB</span></td>
+                <td>Iterated 8 versions, v8 current <span class="tag tag-best">25KB</span></td>
+                <td>Untracked prototype <span class="tag tag-wip">39KB</span></td>
+            </tr>
+            <tr>
+                <td><strong>Best For</strong></td>
+                <td>Cinematic browsing</td>
+                <td>Information density</td>
+                <td>Emotional impact of counter</td>
+                <td>Full story with timeline driver <span class="tag tag-best">recommended</span></td>
+                <td>Self-paced reading</td>
+            </tr>
+            <tr>
+                <td><strong>Mobile Fit</strong></td>
+                <td>Good (native scroll)</td>
+                <td>Good (vertical list)</td>
+                <td>Excellent (native pattern)</td>
+                <td>Good (responsive grid)</td>
+                <td>Excellent (natural mobile)</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="page-footer">
+    <p>Design Review — Buffalo Counter</p>
+    <p>Created from session 20260513_171232 artifacts + color/font showcase</p>
+    <p>All options exist as untracked files in <code>/root/buffalo-counter/</code></p>
+    <p style="margin-top:0.5rem;"><a href="https://bayarddevries.github.io/buffalo-counter/">Live Site</a> · <a href="https://github.com/Bayarddevries/buffalo-counter">GitHub</a></p>
+</div>
+
+</body>
+</html>

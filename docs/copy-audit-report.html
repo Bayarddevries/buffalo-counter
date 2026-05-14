@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buffalo Counter — Copy & Citation Peer Review</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --text: #e8e8e8;
+    --muted: #888;
+    --accent: #c49a3a;
+    --good: #2d6a4f;
+    --warn: #c49a3a;
+    --bad: #c41e3a;
+    --border: rgba(196,154,58,0.2);
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1, h2, h3 { font-family: 'IM Fell English', Georgia, serif; margin-bottom: 1rem; }
+  h1 { font-size: 2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h2 { font-size: 1.3rem; color: var(--accent); margin-top: 2rem; }
+  h3 { font-size: 1rem; color: var(--muted); font-weight: normal; }
+  p { margin-bottom: 0.75rem; }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    background: #111;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .summary-item { text-align: center; }
+  .summary-num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .summary-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); }
+  th { color: var(--accent); font-weight: 600; }
+  tr:hover { background: #111; }
+  .severity-Critical { color: var(--bad); font-weight: 700; }
+  .severity-High { color: #e76f51; font-weight: 700; }
+  .severity-Medium { color: var(--warn); }
+  .severity-Low { color: var(--muted); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-Critical { background: var(--bad); color: white; }
+  .badge-High { background: #e76f51; color: white; }
+  .badge-Medium { background: var(--warn); color: #000; }
+  .badge-Low { background: #333; color: var(--muted); }
+  .missing { background: #1a1a1a; padding: 1rem; border-left: 3px solid var(--accent); margin-bottom: 1rem; }
+  .missing li { margin-left: 1.5rem; margin-bottom: 0.5rem; }
+  .score { font-size: 3rem; font-weight: 700; color: var(--good); }
+  .score-label { color: var(--muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; }
+  .recommendations li { margin-bottom: 0.5rem; padding-left: 1rem; position: relative; }
+  .recommendations li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<h1>Buffalo Counter — Copy & Citation Peer Review</h1>
+
+<p>Generated: 2025-05-14 | File: <code>index.html</code></p>
+
+<div class="summary">
+  <div class="summary-item">
+    <div class="summary-num">1</div>
+    <div class="summary-label">Total Issues</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-num severity-Critical">0</div>
+    <div class="summary-label">Critical</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-num severity-High">0</div>
+    <div class="summary-label">High</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-num severity-Medium">1</div>
+    <div class="summary-label">Medium</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-num severity-Low">0</div>
+    <div class="summary-label">Low</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-num" style="color: var(--good)">95%</div>
+    <div class="summary-label">Style Score</div>
+  </div>
+</div>
+
+<h2 id="exec-summary">Executive Summary</h2>
+<p>This peer review identified <strong>1</strong> issues across 4 severity levels. Copy style score: <strong>95%</strong>. Top priorities: fix factual errors, enforce past-tense narrative, and consider adding 3 missing historical narrative(s).</p>
+
+<h2 id="score-breakdown">Style Score Breakdown</h2>
+<p>The copy style score of <strong>95%</strong> is calculated from:</p>
+<ul>
+  <li>Base: 100 points</li>
+  <li>−30 per Critical issue</li>
+  <li>−15 per High issue</li>
+  <li>−5 per Medium issue</li>
+  <li>−1 per Low issue</li>
+</ul>
+
+<h2 id="issue-log">Issue Log</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Type</th>
+      <th>Location</th>
+      <th>Issue</th>
+      <th>Recommended Fix</th>
+      <th>Severity</th>
+    </tr>
+  </thead>
+  <tbody>
+
+      <tr>
+        <td>1</td>
+        <td>Consistency</td>
+        <td>Global</td>
+        <td>Mixed terminology: &quot;buffalo&quot; (31) vs &quot;bison&quot; (3)</td>
+        <td>Standardize to &quot;buffalo&quot; throughout (per project convention)</td>
+        <td><span class="badge badge-Medium">Medium</span></td>
+      </tr>
+  </tbody>
+</table>
+
+<h2 id="missing-narratives">Missing Narratives</h2>
+<p>The following historical narratives are not represented in the current card set. Consider adding cards or weaving them into existing ones:</p>
+<ul class="missing">
+    <li>Sand Creek Massacre (1864) — civilian attack by Colorado militia; exemplifies military policy toward Indigenous food sources.</li>
+    <li>Early conservation — how the near-extinction spurred the national park movement and captive breeding programs.</li>
+    <li>Cultural assimilation — buffalo loss facilitated forced residential school attendance and loss of language.</li>
+
+</ul>
+
+<h2 id="recommendations">Prioritized Action Plan</h2>
+<ol class="recommendations">
+  <li>Add 3 missing narrative(s) to improve historical coverage.</li>
+  <li>Re-run this audit after each content update to maintain quality.</li>
+</ol>
+
+<h2 id="cultural-review">Cultural & Sensitivity Review</h2>
+<p>Metis portrayal: <strong style="color: var(--good)">✓ PASS</strong> — Metis communities are consistently framed as victims of buffalo destruction, never as perpetrators. Language around colonial violence uses appropriate active-voice attribution (e.g., "military campaigns", "government policy").</p>
+<p>Indigenous terminology: "Metis" capitalized consistently. No inappropriate use of "settlement" as neutral term — narrative foregrounds dispossession.</p>
+
+<h2 id="sources-verified">Sources Verified</h2>
+<p>All 9 citations from the sources panel have been checked for correct formatting. Issues flagged individually in the table above where applicable.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+<p>1. Address all <strong>Critical</strong> and <strong>High</strong> issues before the next deploy.<br>
+2. Consider adding 1–2 missing narratives as new cards.<br>
+3. Re-run this audit after content changes.</p>
+
+<hr style="margin-top: 3rem; border: none; border-top: 1px solid var(--border);">
+<p style="color: var(--muted); font-size: 0.8rem; text-align: center;">
+  Generated by buffalo-counter copy audit script | Bayard deVries
+</p>
+
+</body>
+</html>

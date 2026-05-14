@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buffalo Counter — Design Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Load all candidate fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Smokum&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Spectral:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;700&family=DM+Sans:wght@400;500;700&family=Inter:wght@300;400;600;700&family=IBM+Plex+Sans:wght@300;400;600;700&family=Overpass:wght@300;400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        background: #0a0a0a;
+        color: #e8e8e8;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+    }
+
+    .page-header {
+        text-align: center;
+        padding: 3rem 1rem 2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .page-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #e8e8e8;
+    }
+    .page-header p {
+        color: #888;
+        margin-top: 0.5rem;
+        font-size: 1rem;
+    }
+
+    /* ===================================
+       COLOR SECTION
+       =================================== */
+    .section-label {
+        padding: 2.5rem 1.5rem 1rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #666;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* ---- Population Counter Color Demo ---- */
+    .counter-demos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 1.5rem 3rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .counter-demo {
+        background: #141414;
+        border-radius: 12px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .demo-label {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Option A: Forest Green → Crimson */
+    .counter-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+        transition: color 0.3s;
+    }
+    .counter-demo-a .counter-val { color: #2d6a4f; }
+    .counter-demo-a .counter-val.mid { color: #c49a3a; }
+    .counter-demo-a .counter-val.low { color: #c41e3a; }
+
+    /* Option B: Sage → Rust */
+    .counter-demo-b .counter-val { color: #7a9e7e; }
+    .counter-demo-b .counter-val.mid { color: #d4a843; }
+    .counter-demo-b .counter-val.low { color: #b7410e; }
+
+    /* Option C: Teal → Vermillion */
+    .counter-demo-c .counter-val { color: #2a9d8f; }
+    .counter-demo-c .counter-val.mid { color: #e9c46a; }
+    .counter-demo-c .counter-val.low { color: #e63946; }
+
+    /* Option D: Olive → Oxblood */
+    .counter-demo-d .counter-val { color: #606c38; }
+    .counter-demo-d .counter-val.mid { color: #dda15e; }
+    .counter-demo-d .counter-val.low { color: #7b2d26; }
+
+    /* Option E: Gold → Crimson (current production) */
+    .counter-demo-e .counter-val { color: #a8b86e; }
+    .counter-demo-e .counter-val.mid { color: #c49a3a; }
+    .counter-demo-e .counter-val.low { color: #c41e3a; }
+
+    /* Option F: Moss → Burnt Sienna */
+    .counter-demo-f .counter-val { color: #588157; }
+    .counter-demo-f .counter-val.mid { color: #bc6c25; }
+    .counter-demo-f .counter-val.low { color: #9b2226; }
+
+    .year-label {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
+        color: #888;
+        margin-top: 0.5rem;
+    }
+
+    /* Gradient bar showing the transition */
+    .gradient-bar {
+        height: 8px;
+        border-radius: 4px;
+        margin-top: 1.5rem;
+    }
+    .gradient-bar-a { background: linear-gradient(90deg, #2d6a4f, #c49a3a, #c41e3a); }
+    .gradient-bar-b { background: linear-gradient(90deg, #7a9e7e, #d4a843, #b7410e); }
+    .gradient-bar-c { background: linear-gradient(90deg, #2a9d8f, #e9c46a, #e63946); }
+    .gradient-bar-d { background: linear-gradient(90deg, #606c38, #dda15e, #7b2d26); }
+    .gradient-bar-e { background: linear-gradient(90deg, #a8b86e, #c49a3a, #c41e3a); }
+    .gradient-bar-f { background: linear-gradient(90deg, #588157, #bc6c25, #9b2226); }
+
+    /* Pick buttons */
+    .demo-pick {
+        margin-top: 1.25rem;
+        padding: 8px 1.5rem;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #888;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .demo-pick:hover {
+        border-color: rgba(255,255,255,0.3);
+        color: #e8e8e8;
+    }
+    .demo-pick.picked {
+        border-color: var(--pick-color, #c49a3a);
+        color: var(--pick-color, #c49a3a);
+    }
+
+    /* ===================================
+       FONT SECTION
+       =================================== */
+    .font-demos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 1.5rem 3rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .font-demo {
+        background: #141414;
+        border-radius: 12px;
+        padding: 2rem 1.5rem;
+        border: 1px solid rgba(255,255,255,0.06);
+        position: relative;
+    }
+
+    .font-demo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .font-names {
+        font-size: 0.78rem;
+        color: #888;
+    }
+    .font-names strong {
+        color: #e8e8e8;
+        display: block;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .font-sample-counter {
+        font-size: 2.8rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        color: var(--sample-color, #c41e3a);
+    }
+
+    .font-sample-year {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .font-sample-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+        color: #e8e8e8;
+    }
+
+    .font-sample-body {
+        font-size: 0.95rem;
+        color: #aaa;
+        line-height: 1.6;
+    }
+
+    /* ---- Font Pair A: Rye + DM Sans ---- */
+    .font-a .font-sample-counter,
+    .font-a .font-sample-year { font-family: 'Rye', serif; }
+    .font-a .font-sample-title { font-family: 'Rye', serif; }
+    .font-a .font-sample-body { font-family: 'DM Sans', sans-serif; }
+
+    /* ---- Font Pair B: Smokum + Inter ---- */
+    .font-b .font-sample-counter,
+    .font-b .font-sample-year { font-family: 'Smokum', cursive; }
+    .font-b .font-sample-title { font-family: 'Smokum', cursive; }
+    .font-b .font-sample-body { font-family: 'Inter', sans-serif; }
+
+    /* ---- Font Pair C: Playfair Display + Space Grotesk ---- */
+    .font-c .font-sample-counter,
+    .font-c .font-sample-year { font-family: 'Playfair Display', serif; }
+    .font-c .font-sample-title { font-family: 'Playfair Display', serif; }
+    .font-c .font-sample-body { font-family: 'Space Grotesk', sans-serif; }
+
+    /* ---- Font Pair D: IM Fell English + IBM Plex Sans ---- */
+    .font-d .font-sample-counter,
+    .font-d .font-sample-year { font-family: 'IM Fell English', serif; }
+    .font-d .font-sample-title { font-family: 'IM Fell English', serif; }
+    .font-d .font-sample-body { font-family: 'IBM Plex Sans', sans-serif; }
+
+    /* ---- Font Pair E: Spectral + Outfit ---- */
+    .font-e .font-sample-counter,
+    .font-e .font-sample-year { font-family: 'Spectral', serif; }
+    .font-e .font-sample-title { font-family: 'Spectral', serif; }
+    .font-e .font-sample-body { font-family: 'Outfit', sans-serif; }
+
+    /* ---- Font Pair F: EB Garamond + Overpass ---- */
+    .font-f .font-sample-counter,
+    .font-f .font-sample-year { font-family: 'EB Garamond', serif; }
+    .font-f .font-sample-title { font-family: 'EB Garamond', serif; }
+    .font-f .font-sample-body { font-family: 'Overpass', sans-serif; }
+
+    /* ---- Font Pair G: Cinzel + Syne ---- */
+    .font-g .font-sample-counter,
+    .font-g .font-sample-year { font-family: 'Cinzel', serif; }
+    .font-g .font-sample-title { font-family: 'Cinzel', serif; }
+    .font-g .font-sample-body { font-family: 'Syne', sans-serif; }
+
+    /* ---- Font Pair H: Lora + DM Sans ---- */
+    .font-h .font-sample-counter,
+    .font-h .font-sample-year { font-family: 'Lora', serif; }
+    .font-h .font-sample-title { font-family: 'Lora', serif; }
+    .font-h .font-sample-body { font-family: 'DM Sans', sans-serif; }
+
+    /* Pick badge */
+    .pick-badge {
+        display: none;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 12px;
+        background: rgba(196, 154, 58, 0.15);
+        border: 1px solid rgba(196, 154, 58, 0.3);
+        border-radius: 20px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        color: #c49a3a;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .font-demo.picked .pick-badge { display: block; }
+
+    /* ===================================
+       COMBO SECTION
+       =================================== */
+    .combo-section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1rem 1.5rem 4rem;
+    }
+
+    .combo-demo {
+        background: #111;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .combo-header {
+        padding: 1.5rem 1.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .combo-header h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #888;
+    }
+
+    .combo-combo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 3rem 2rem 2.5rem;
+        background: #0d0d0d;
+        position: relative;
+    }
+
+    .combo-year {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    .combo-counter {
+        font-size: clamp(3rem, 10vw, 5rem);
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 40px var(--glow, rgba(45,106,79,0.2));
+    }
+
+    .combo-label-text {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        font-style: italic;
+        margin-bottom: 2rem;
+    }
+
+    .combo-card-demo {
+        max-width: 480px;
+        width: 100%;
+        background: #1a1a1a;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: left;
+    }
+
+    .combo-card-demo .cd-year {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .combo-card-demo .cd-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .combo-card-demo .cd-body {
+        font-size: 0.92rem;
+        color: #aaa;
+        line-height: 1.6;
+    }
+
+    .combo-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.04);
+        margin: 0;
+    }
+
+    /* Combo-specific styles */
+    .combo-aa { --heading: 'Rye', serif; --body: 'DM Sans', sans-serif; --counter-color: #2d6a4f; --mid-color: #c49a3a; --low-color: #c41e3a; --peak-color: #c41e3a; }
+    .combo-aa .combo-year, .combo-aa .combo-counter, .combo-aa .cd-year, .combo-aa .cd-title { font-family: var(--heading); }
+    .combo-aa .combo-label-text, .combo-aa .cd-body { font-family: var(--body); }
+    .combo-aa .combo-counter { color: var(--peak-color); }
+
+    .combo-bb { --heading: 'IM Fell English', serif; --body: 'IBM Plex Sans', sans-serif; --counter-color: #606c38; --mid-color: #dda15e; --low-color: #7b2d26; --peak-color: #7b2d26; }
+    .combo-bb .combo-year, .combo-bb .combo-counter, .combo-bb .cd-year, .combo-bb .cd-title { font-family: var(--heading); }
+    .combo-bb .combo-label-text, .combo-bb .cd-body { font-family: var(--body); }
+    .combo-bb .combo-counter { color: var(--peak-color); }
+
+    .combo-cc { --heading: 'Playfair Display', serif; --body: 'Outfit', sans-serif; --counter-color: #2a9d8f; --mid-color: #e9c46a; --low-color: #e63946; --peak-color: #e63946; }
+    .combo-cc .combo-year, .combo-cc .combo-counter, .combo-cc .cd-year, .combo-cc .cd-title { font-family: var(--heading); }
+    .combo-cc .combo-label-text, .combo-cc .cd-body { font-family: var(--body); }
+    .combo-cc .combo-counter { color: var(--peak-color); }
+
+    .combo-dd { --heading: 'Cinzel', serif; --body: 'Syne', sans-serif; --counter-color: #588157; --mid-color: #bc6c25; --low-color: #9b2226; --peak-color: #9b2226; }
+    .combo-dd .combo-year, .combo-dd .combo-counter, .combo-dd .cd-year, .combo-dd .cd-title { font-family: var(--heading); }
+    .combo-dd .combo-label-text, .combo-dd .cd-body { font-family: var(--body); }
+    .combo-dd .combo-counter { color: var(--peak-color); }
+
+    .combo-ee { --heading: 'Spectral', serif; --body: 'DM Sans', sans-serif; --counter-color: #7a9e7e; --mid-color: #d4a843; --low-color: #b7410e; --peak-color: #b7410e; }
+    .combo-ee .combo-year, .combo-ee .combo-counter, .combo-ee .cd-year, .combo-ee .cd-title { font-family: var(--heading); }
+    .combo-ee .combo-label-text, .combo-ee .cd-body { font-family: var(--body); }
+    .combo-ee .combo-counter { color: var(--peak-color); }
+
+    /* Footer */
+    .page-footer {
+        text-align: center;
+        padding: 3rem 1rem;
+        font-size: 0.8rem;
+        color: #555;
+        font-family: 'Inter', sans-serif;
+        border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    @media (max-width: 768px) {
+        .counter-demos, .font-demos {
+            grid-template-columns: 1fr;
+        }
+        .font-demos {
+            padding: 1rem 1rem 2rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>Buffalo Counter — Design Options</h1>
+    <p>Click any option to pick it. Share your choices.</p>
+</div>
+
+<!-- ==============================
+     SECTION 1: COUNTER COLORS
+     ============================== -->
+<div class="section-label">Counter Color — Green → Red Transition</div>
+
+<div class="counter-demos">
+
+    <!-- A: Forest Green / Brass / Crimson -->
+    <div class="counter-demo counter-demo-a">
+        <div class="demo-label">Option A — Forest, Brass, Crimson</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-a"></div>
+        <br>
+        <button class="demo-pick" onclick="pickA(this)" style="--pick-color: #2d6a4f">Pick A</button>
+    </div>
+
+    <!-- B: Sage / Gold / Rust -->
+    <div class="counter-demo counter-demo-b">
+        <div class="demo-label">Option B — Sage, Gold, Rust</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-b"></div>
+        <br>
+        <button class="demo-pick" onclick="pickB(this)" style="--pick-color: #7a9e7e">Pick B</button>
+    </div>
+
+    <!-- C: Teal / Amber / Vermillion -->
+    <div class="counter-demo counter-demo-c">
+        <div class="demo-label">Option C — Teal, Amber, Vermillion</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-c"></div>
+        <br>
+        <button class="demo-pick" onclick="pickC(this)" style="--pick-color: #2a9d8f">Pick C</button>
+    </div>
+
+    <!-- D: Olive / Copper / Oxblood -->
+    <div class="counter-demo counter-demo-d">
+        <div class="demo-label">Option D — Olive, Copper, Oxblood</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-d"></div>
+        <br>
+        <button class="demo-pick" onclick="pickD(this)" style="--pick-color: #606c38">Pick D</button>
+    </div>
+
+    <!-- E: Moss / Brass / Crimson (warmer) -->
+    <div class="counter-demo counter-demo-e">
+        <div class="demo-label">Option E — Moss, Brass, Crimson</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-e"></div>
+        <br>
+        <button class="demo-pick" onclick="pickE(this)" style="--pick-color: #a8b86e">Pick E</button>
+    </div>
+
+    <!-- F: Sage Green / Burnt Orange / Deep Red -->
+    <div class="counter-demo counter-demo-f">
+        <div class="demo-label">Option F — Meadow, Sienna, Blood</div>
+        <div class="counter-val">30,000,000</div>
+        <div class="year-label">1800</div>
+        <div class="counter-val mid">13,500,000</div>
+        <div class="year-label">1865</div>
+        <div class="counter-val low">500</div>
+        <div class="year-label">1900</div>
+        <div class="gradient-bar gradient-bar-f"></div>
+        <br>
+        <button class="demo-pick" onclick="pickF(this)" style="--pick-color: #588157">Pick F</button>
+    </div>
+
+</div>
+
+<!-- ==============================
+     SECTION 2: FONT PAIRS
+     ============================== -->
+<div class="section-label">Font Pairs — Western + Modern</div>
+
+<div class="font-demos">
+
+    <!-- A: Rye + DM Sans -->
+    <div class="font-demo font-a" data-font="a">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option A</strong>
+                Rye (western display) + DM Sans (clean body)
+            </div>
+            <button class="demo-pick" onclick="pickFont('a')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- B: Smokum + Inter -->
+    <div class="font-demo font-b" data-font="b">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option B</strong>
+                Smokum (wild west poster) + Inter (modern highly legible)
+            </div>
+            <button class="demo-pick" onclick="pickFont('b')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- C: Playfair Display + Space Grotesk -->
+    <div class="font-demo font-c" data-font="c">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option C</strong>
+                Playfair Display (elegant old-world) + Space Grotesk (geometric modern)
+            </div>
+            <button class="demo-pick" onclick="pickFont('c')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- D: IM Fell English + IBM Plex Sans -->
+    <div class="font-demo font-d" data-font="d">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option D</strong>
+                IM Fell English (17th century printing press) + IBM Plex Sans (industrial modern)
+            </div>
+            <button class="demo-pick" onclick="pickFont('d')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- E: Spectral + Outfit -->
+    <div class="font-demo font-e" data-font="e">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option E</strong>
+                Spectral (literary serif) + Outfit (friendly modern)
+            </div>
+            <button class="demo-pick" onclick="pickFont('e')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- F: EB Garamond + Overpass -->
+    <div class="font-demo font-f" data-font="f">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option F</strong>
+                EB Garamond (classic renaissance) + Overpass (highway signage modern)
+            </div>
+            <button class="demo-pick" onclick="pickFont('f')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- G: Cinzel + Syne -->
+    <div class="font-demo font-g" data-font="g">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option G</strong>
+                Cinzel (roman inscription) + Syne (contemporary editorial)
+            </div>
+            <button class="demo-pick" onclick="pickFont('g')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+    <!-- H: Lora + DM Sans (production-like but warmer) -->
+    <div class="font-demo font-h" data-font="h">
+        <div class="pick-badge">Picked</div>
+        <div class="font-demo-header">
+            <div class="font-names">
+                <strong>Option H</strong>
+                Lora (brushed modern serif) + DM Sans (clean body)
+            </div>
+            <button class="demo-pick" onclick="pickFont('h')" style="--pick-color: #c49a3a;">Pick</button>
+        </div>
+        <div class="font-sample-counter">30,000,000</div>
+        <div class="font-sample-year">Year 1800</div>
+        <div class="font-sample-title">A Vast Ocean of Buffalo</div>
+        <div class="font-sample-body">Tens of millions of buffalo covered the plains from Alberta to Texas. For the Métis, the buffalo was everything — food, clothing, shelter, trade goods.</div>
+    </div>
+
+</div>
+
+<!-- ==============================
+     SECTION 3: FULL COMBOS
+     ============================== -->
+<div class="section-label" style="margin-top: 1rem;">Full Combinations — Top Contenders</div>
+
+<div class="combo-section">
+
+    <!-- Combo AA: Rye + DM Sans + Option A (Forest) -->
+    <div class="combo-demo combo-aa">
+        <div class="combo-header">
+            <h3>Combo 1 · Rye + DM Sans + Forest Palette</h3>
+            <button class="demo-pick" onclick="pickCombo('aa')" style="--pick-color: #2d6a4f;">Pick Both</button>
+        </div>
+        <div class="combo-combo">
+            <div class="combo-year">1800</div>
+            <div class="combo-counter">30,000,000</div>
+            <div class="combo-label-text">Plains Buffalo</div>
+            <div class="combo-card-demo">
+                <div class="cd-year" style="color: var(--counter-color);">1870</div>
+                <div class="cd-title">The Great Collapse</div>
+                <div class="cd-body">The population crashed from millions to hundreds of thousands in just a few years. Métis communities faced starvation as the buffalo economy vanished.</div>
+            </div>
+        </div>
+        <div class="combo-divider"></div>
+        <div class="combo-combo" style="padding-top: 2rem;">
+            <div class="combo-year">1900</div>
+            <div class="combo-counter" style="color: var(--peak-color)">500</div>
+            <div class="combo-label-text">Plains Buffalo · Functionally Extinct</div>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- Combo BB: IM Fell English + IBM Plex Sans + Option D (Olive/Oxblood) -->
+    <div class="combo-demo combo-bb">
+        <div class="combo-header">
+            <h3>Combo 2 · IM Fell English + IBM Plex Sans + Oxblood Palette</h3>
+            <button class="demo-pick" onclick="pickCombo('bb')" style="--pick-color: #7b2d26;">Pick Both</button>
+        </div>
+        <div class="combo-combo">
+            <div class="combo-year">1800</div>
+            <div class="combo-counter">30,000,000</div>
+            <div class="combo-label-text">Plains Buffalo</div>
+            <div class="combo-card-demo">
+                <div class="cd-year" style="color: var(--counter-color);">1870</div>
+                <div class="cd-title">The Great Collapse</div>
+                <div class="cd-body">The population crashed from millions to hundreds of thousands in just a few years. Métis communities faced starvation as the buffalo economy vanished.</div>
+            </div>
+        </div>
+        <div class="combo-divider"></div>
+        <div class="combo-combo" style="padding-top: 2rem;">
+            <div class="combo-year">1900</div>
+            <div class="combo-counter" style="color: var(--peak-color)">500</div>
+            <div class="combo-label-text">Plains Buffalo · Functionally Extinct</div>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- Combo CC: Playfair + Outfit + Option C (Teal/Vermillion) -->
+    <div class="combo-demo combo-cc">
+        <div class="combo-header">
+            <h3>Combo 3 · Playfair Display + Outfit + Teal Palette</h3>
+            <button class="demo-pick" onclick="pickCombo('cc')" style="--pick-color: #e63946;">Pick Both</button>
+        </div>
+        <div class="combo-combo">
+            <div class="combo-year">1800</div>
+            <div class="combo-counter">30,000,000</div>
+            <div class="combo-label-text">Plains Buffalo</div>
+            <div class="combo-card-demo">
+                <div class="cd-year" style="color: var(--counter-color);">1870</div>
+                <div class="cd-title">The Great Collapse</div>
+                <div class="cd-body">The population crashed from millions to hundreds of thousands in just a few years. Métis communities faced starvation as the buffalo economy vanished.</div>
+            </div>
+        </div>
+        <div class="combo-divider"></div>
+        <div class="combo-combo" style="padding-top: 2rem;">
+            <div class="combo-year">1900</div>
+            <div class="combo-counter" style="color: var(--peak-color)">500</div>
+            <div class="combo-label-text">Plains Buffalo · Functionally Extinct</div>
+        </div>
+    </div>
+
+</div>
+
+<br><br>
+
+<div class="page-footer">
+    Pick your favorites and share them (e.g. "Color D + Font G + Combo 2")
+</div>
+
+<script>
+    // Color picks
+    const colorBtns = { a: null, b: null, c: null, d: null, e: null, f: null };
+    function pickColor(btn, opt) {
+        Object.values(colorBtns).forEach(b => { if(b) b.classList.remove('picked'); });
+        btn.classList.add('picked');
+        colorBtns[opt] = btn;
+    }
+    function pickA(b) { pickColor(b, 'a'); }
+    function pickB(b) { pickColor(b, 'b'); }
+    function pickC(b) { pickColor(b, 'c'); }
+    function pickD(b) { pickColor(b, 'd'); }
+    function pickE(b) { pickColor(b, 'e'); }
+    function pickF(b) { pickColor(b, 'f'); }
+
+    // Font picks
+    function pickFont(id) {
+        document.querySelectorAll('.font-demo').forEach(el => el.classList.remove('picked'));
+        document.querySelector(`.font-demo[data-font="${id}"]`).classList.add('picked');
+    }
+
+    // Combo picks
+    function pickCombo(id) {
+        // Flash effect
+        const el = document.querySelector(`.combo-demo.combo-${id}`);
+        el.style.borderColor = '#c49a3a';
+        setTimeout(() => { el.style.borderColor = 'rgba(255,255,255,0.06)'; }, 600);
+    }
+</script>
+
+</body>
+</html>

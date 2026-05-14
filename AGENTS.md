@@ -1,8 +1,8 @@
-# AGENTS.md
+# AGENTS.md — The Buffalo Counter
 
 ## Project Overview
 
-**The Buffalo Counter** is an interactive visualization of the catastrophic decline of the North American buffalo population from 60 million in 1800 to fewer than 1,000 by 1900.
+**The Buffalo Counter** is an interactive visualization of the catastrophic decline of the North American buffalo population from 30 million in 1800 to fewer than 500 by 1900.
 
 **Live URL:** https://bayarddevries.github.io/buffalo-counter/
 
@@ -14,349 +14,158 @@
 
 ---
 
-## Quick Start for Future Agents
+## Current Architecture (as of 2026-05-13)
 
-### 1. Understand the Project
+### Interaction Model: Scroll-Driven Snap Cards
 
-This is a single-page visualization with:
-- A live counter showing buffalo population
-- A timeline scrubber (1800-1900)
-- Play/pause animation
-- Interactive event markers on the timeline
-- Full accessibility (WCAG AA compliant)
+The site uses **full-page CSS scroll-snap cards** as the primary interaction model. Users scroll through events, and a sticky counter at the top updates in real-time via scroll position interpolation. Auto-play/timer model was abandoned in favor of user-controlled scroll.
 
-### 2. File Structure
+### File Structure
 
 ```
 buffalo-counter/
-├── index.html              # HTML structure only (~147 lines)
-├── styles.css              # All styles and design tokens (~706 lines)
-├── app.js                  # All JavaScript logic (~732 lines)
+├── index.html              # HTML: splash, counter, timeline, scroll-snap cards, sources bar
+├── styles.css              # All styles, design tokens, scroll-snap rules, responsive
+├── app.js                  # JS: IntersectionObserver, scroll interpolation, counter logic
 ├── README.md               # User-facing documentation
-├── AGENTS.md               # This file — agent instructions
+├── AGENTS.md               # This file
+├── CHANGELOG.md            # Version history
+├── images/                 # Historical photos (lazy-loaded in card images)
 └── .github/
     └── workflows/
         └── deploy.yml      # GitHub Pages deployment
 ```
 
-### 3. Key Files to Edit
+### How Scroll-Driven Counter Works
 
-- **index.html** — HTML structure, containers, semantic markup
-- **styles.css** — All styling, design tokens, responsive rules
-- **app.js** — All JavaScript logic, data, event handling
+1. **CSS scroll-snap**: `scroll-snap-type: y mandatory` on `.cards-section`, each `.card` has `scroll-snap-align: start`
+2. **IntersectionObserver**: Watches cards, adds/removes `.active` class at threshold 0.5
+3. **Scroll interpolation**: On scroll events (rAF-throttled), finds the two cards the viewport center is between, calculates `clampedProgress`, and linearly interpolates year + population between their data points
+4. **Counter color**: Dynamically maps population to CSS classes — green (`stable`) → yellow (`warning`) → red/deep red (`critical`/`extinct`)
 
-### 4. Deployment
+### Key Files
 
-The project uses GitHub Actions for automatic deployment:
+- **index.html** — DOM structure: splash overlay, sticky counter, timeline, 8 snap cards (1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900), collapsible sources bar
+- **styles.css** — Design tokens, scroll-snap container rules, card animations, dynamic counter color classes, IM Fell English typography for counter value
+- **app.js** — `DATA_POINTS` array (7 data points), `setupCardObserver()` (IntersectionObserver), `setupScrollInterpolation()` (scroll math), `updateFromYear()` (counter + color + timeline), `setupSplash()`, `setupSources()`
+
+### Population Data (`DATA_POINTS` in app.js)
+
+```javascript
+[
+  { year: 1800, pop: 30000000 },
+  { year: 1850, pop: 20000000 },
+  { year: 1865, pop: 13500000 },
+  { year: 1870, pop: 5500000 },
+  { year: 1880, pop: 395000 },
+  { year: 1889, pop: 653 },
+  { year: 1900, pop: 500 },
+]
+```
+
+### Design Tokens
+
+- `--color-bg: #0a0a0a` — Background
+- `--color-accent: #c49a3a` — Gold accent (years, headings, timeline)
+- `--color-success: #2d6a4f` — Green (high population, stable)
+- `--color-warning: #e76f51` — Orange (declining population)
+- `--color-danger: #c41e3a` — Red (critical population)
+- `--color-danger-dark: #8b0000` — Dark red (extinction)
+- `--font-heading`: IM Fell English (counter value, card years)
+- `--font-body`: IBM Plex Sans (body text)
+
+### Content Rules
+
+- **No em dashes** — use colons or commas instead
+- **Past tense only** — all copy is historical narration
+- **Canadian flag** (🇨🇦) required on Canadian event cards
+- **Metis as victims** — framing Metis communities as victims of buffalo destruction caused by commercial hunting, military policy, and government action — never as perpetrators
+- Conversational, direct voice — no corporate buzzwords
+
+---
+
+## Unfinished Work (Picking Up Later)
+
+### Design Options Evaluation
+
+Four design prototypes were created but NOT merged into production. They remain as untracked files in the repo:
+
+- **option-a.html** — Filmstrip events (horizontal scroll, 2-col desktop grid). Has play/reset buttons.
+- **option-b.html** — Compact HUD with expandable event cards
+- **option-c.html** — Mobile-first bottom sheet for events
+- **option-d.html** — High-fidelity full redesign (25KB)
+
+**Current production** uses scroll-snap cards (not any of the above options). The scroll-driven architecture was chosen over auto-play/schedule-driven models. These four options are alternative UI approaches that may be merged or discarded later.
+
+### Image Integration
+
+Historical images exist in `/images/` and are referenced in the scroll-snap cards, but the option prototypes contain alternative image layouts that haven't been finalized.
+
+### Repository Cleanup
+
+Numerous untracked prototype files exist that should be archived or removed:
+- `option-a.html`, `option-b.html`, `option-c.html`, `option-d.html`
+- `scroll-prototype.html` (desktop copy: `/mnt/c/Users/bayar/Desktop/Buffalo Counter - Scroll Prototype.html`)
+- `design-review.html`, `design-showcase.html`
+- `media/`, `images/`, `scripts/`
+- `all_stills.png`, `still_scene1.png`, `still_scene2.png`, `still_scene3.png`
+- `concat.txt`, `final.mp4`, `outbox.mp4`, `plan.md`
+- `research-phillips.pdf`, `research-phillips.txt`
+
+---
+
+## Deployment
 
 ```bash
-# Make changes
+cd /root/buffalo-counter
 git add .
-git commit -m "Your message"
+git commit -m "message"
 git push
-
-# GitHub Actions automatically deploys to GitHub Pages
-# Check status with: gh run list
+# GitHub Actions deploys automatically to GitHub Pages
 ```
 
 **Live URL:** https://bayarddevries.github.io/buffalo-counter/
 
 ---
 
-## Architecture Decisions
+## Deployment History
 
-### Why Separate Files?
-
-Originally a single `index.html` file, but refactored into three files:
-- **index.html** — Structure only
-- **styles.css** — All styles
-- **app.js** — All logic
-
-**Reason:** Better maintainability, code quality, and separation of concerns while still adhering to "no build step" constraint.
-
-### Why No Frameworks?
-
-- Pure HTML/CSS/JavaScript
-- No build step
-- No dependencies
-- Easy to understand and modify
-- Fast to implement
-
-### Why GitHub Actions?
-
-The `gh repo edit --enable-pages` CLI command failed with "unknown flag" error, so we use a GitHub Actions workflow instead.
+| Commit | Message | Date |
+|--------|---------|------|
+| `144203c` | feat: switch to scroll-driven snap layout matching scroll prototype | 2026-05-13 |
+| `321cd66` | feat: merge Option D layout with scroll-snap cards, Color A, and new typography | 2026-05-13 |
+| `54e9968` | fix: prevent double-remove of splash overlay on close | 2026-05-13 |
+| `dadf64b` | Humanize copy: remove em dashes, past tense, conversational voice | 2026-05-12 |
+| `6ee8886` | Add splash intro overlay, remove historical context section | 2026-05-12 |
+| `49cc447` | Add historical images and collapsible sources bar | 2026-05-12 |
+| `3a3941a` | Peer review fixes: historical corrections, accessibility, performance | 2026-05-12 |
+| `d1629bd` | Add comprehensive project summary | 2026-05-12 |
+| `d0625ea` | Redesign: mobile-first responsive layout with sticky counter | 2026-05-12 |
+| `64c1c89` | Add event markers to timeline with tooltips | 2026-05-12 |
+| `a41b478` | Initial commit: The Buffalo Counter | 2026-05-12 |
 
 ---
 
-## Code Patterns
+## Keyboard Shortcuts (Legacy — auto-play model)
 
-### Data Structure
-
-**Population Data** (in `app.js`):
-```javascript
-const BUFFALO_DATA = [
-  { year: 1800, population: 60000000 },
-  { year: 1850, population: 30000000 },
-  { year: 1870, population: 5000000 },
-  { year: 1880, population: 200000 },
-  { year: 1890, population: 1000 },
-  { year: 1900, population: 500 }
-];
-```
-
-**Event Data** (in `app.js`):
-```javascript
-const EVENTS_DATA = [
-  { year: 1830, title: "The Hide Trade Begins", description: "Buffalo robes become fashionable in Europe and eastern US" },
-  { year: 1860, title: "Railroads Reach the Plains", description: "Railroads enable mass slaughter from train windows" },
-  { year: 1870, title: "The Great Collapse", description: "Population drops from 30M to 5M in a decade" },
-  { year: 1874, title: "US Army Campaigns", description: "Military deliberately destroys herds to force Indigenous onto reservations" },
-  { year: 1883, title: "The Last of the Herds", description: "Fewer than 1,000 buffalo remain" }
-];
-```
-
-### Animation Loop
-
-Uses `requestAnimationFrame` for smooth animation:
-
-```javascript
-function animate() {
-  if (!isPlaying) return;
-  
-  currentYear += animationSpeed;
-  if (currentYear > 1900) {
-    currentYear = 1900;
-    isPlaying = false;
-    updatePlayButton();
-  }
-  
-  updateDisplay();
-  requestAnimationFrame(animate);
-}
-```
-
-### Accessibility Features
-
-- **ARIA labels** on all interactive elements
-- **Live regions** for screen reader announcements
-- **Keyboard navigation** (Arrow keys, Home, End, Space, Escape)
-- **Focus management** with visible indicators
-- **Semantic HTML** with proper landmarks
-- **Color contrast** WCAG AA compliant
-
-### Event Markers
-
-Event markers are positioned using percentage-based CSS:
-
-```javascript
-function createTimelineEventMarkers() {
-  EVENTS_DATA.forEach(event => {
-    const percentage = ((event.year - 1800) / 100) * 100;
-    // Create marker at percentage position
-  });
-}
-```
+Old keyboard shortcuts (Arrow keys, Space, Home, End) from the auto-play model are **NOT implemented** in the current scroll-driven version. Scroll is the only control.
 
 ---
 
-## Common Tasks
-
-### Adding a New Event
-
-1. Add to `EVENTS_DATA` in `app.js`:
-```javascript
-{ year: 1845, title: "Your Event", description: "Your description" }
-```
-
-2. No other changes needed — markers auto-generate!
-
-### Changing Population Data
-
-1. Update `BUFFALO_DATA` in `app.js`
-2. The interpolation logic handles everything automatically
-
-### Adjusting Animation Speed
-
-Change `animationSpeed` in `app.js`:
-```javascript
-const animationSpeed = 0.1; // Years per frame
-```
-
-### Changing Colors
-
-Edit CSS custom properties in `styles.css`:
-```css
-:root {
-  --color-primary: #8B4513; /* SaddleBrown */
-  --color-accent: #DAA520; /* GoldenRod */
-  --color-danger: #DC143C; /* Crimson */
-  /* ... */
-}
-```
-
----
-
-## Testing Checklist
-
-Before deploying, verify:
-
-- [ ] No console errors
-- [ ] Timeline scrubber works
-- [ ] Play/pause button works
-- [ ] Keyboard navigation works (Arrow keys, Home, End, Space)
-- [ ] Event markers appear at correct positions
-- [ ] Tooltips show on hover
-- [ ] Clicking markers jumps to year
-- [ ] Counter turns red below 1 million
-- [ ] Mobile responsive (test on phone)
-- [ ] Accessibility (screen reader announces changes)
-- [ ] GitHub Actions deployment succeeds
-
-### Verification Commands
-
-```bash
-# Check deployment status
-gh run list
-
-# Navigate to live site
-# https://bayarddevries.github.io/buffalo-counter/
-
-# Check console for errors
-# (Use browser DevTools)
-```
-
----
-
-## Known Issues & Limitations
-
-### None Currently
-
-The project is in good shape with no known issues.
-
----
-
-## Future Enhancement Ideas
-
-### Low Effort
-- Add more historical events to the timeline
-- Add a "Reset" button to return to 1800
-- Add a "Share" button to copy URL with current year
-
-### Medium Effort
-- Add sound effects (buffalo sounds, train whistles)
-- Add a map showing buffalo range shrinking
-- Add quotes from historical figures
-
-### High Effort
-- Add 3D visualization of buffalo herds
-- Add VR experience
-- Add multiplayer mode
-
----
-
-## User Preferences
-
-### Design Philosophy
-- "High concept, low effort" — brilliant concepts, fast implementation
-- Values automation and clear communication
-- Prefers human, conversational copy over corporate buzzwords
-- Avoids: "multidisciplinary", "end-to-end", "bridge the gap", "resilient and scalable", "orchestrated agentic", "high-fidelity", "authentic"
-
-### Technical Preferences
-- Pure HTML/CSS/JavaScript (no frameworks)
-- No build step
-- GitHub Pages for deployment
-- Accessibility as a core principle
-- Mobile responsive
-
-### Communication Style
-- Direct, plain language with real voice
-- Transparent about background processes
-- Clear about what's happening
-
----
-
-## Context from Memory
+## Context
 
 ### Related Projects
 - **Project Heimdall** — 56-case UFO map, similar data visualization approach
 - **Métis Homeland Map** — V8, Métis heritage project
-- **Shoebox V2** — React/TS project
 - **Devries Dynamics** — Portfolio website
 
 ### User Background
-- Bayard deVries, GPU PC, local models
-- 150+ employees across 8 leader teams at Shaw
-- Métis heritage focus
-- Values automation and clear documentation
+- Bayard deVries, WSL on Windows, local models
+- Canadian focus, Métis heritage
+- Prefers "high concept, low effort" — direct, human conversational copy
 
 ### Tech Environment
-- WSL on Windows
-- 8GB RAM
+- WSL on Windows, 8GB RAM
 - GitHub org: Bayarddevries
-- 11 repos, 3 archived
-
----
-
-## Contact & Support
-
-### GitHub Issues
-Report bugs or request features: https://github.com/Bayarddevries/buffalo-counter/issues
-
-### Live Site
-https://bayarddevries.github.io/buffalo-counter/
-
-### Repository
-https://github.com/Bayarddevries/buffalo-counter
-
----
-
-## Deployment History
-
-### Initial Deployment
-- Date: May 12, 2026
-- Status: Live and verified
-- URL: https://bayarddevries.github.io/buffalo-counter/
-
-### Major Updates
-1. **Initial commit** — Single HTML file with full functionality
-2. **Refactoring** — Separated into index.html, styles.css, app.js
-3. **Accessibility improvements** — ARIA labels, keyboard navigation, screen reader support
-4. **Timeline event markers** — Interactive markers with tooltips
-
-### Verification
-- GitHub Actions: ✅ Completed successfully
-- Console errors: ✅ 0 errors
-- Functionality: ✅ All features working
-- Accessibility: ✅ WCAG AA compliant
-
----
-
-## Quick Reference
-
-### Keyboard Shortcuts
-- Arrow Left/Right — Move timeline by 1 year
-- Shift + Arrow — Move by 10 years
-- Home — Jump to 1800
-- End — Jump to 1900
-- Space/Enter — Play/Pause
-- Escape — Stop animation
-
-### File Locations
-- Working directory: `/tmp/buffalo-counter`
-- Branch: `master`
-- Remote: `origin` (https://github.com/Bayarddevries/buffalo-counter.git)
-
-### Key Functions (app.js)
-- `updateDisplay()` — Update counter and timeline
-- `animate()` — Animation loop
-- `createTimelineEventMarkers()` — Generate event markers
-- `showTooltip()` — Show event tooltip
-- `jumpToYear()` — Jump to specific year
-- `updateTimelineEventMarkers()` — Update marker active states
-
----
-
-## End of AGENTS.md
-
-This document is maintained for future agents working on The Buffalo Counter project. Update it when making significant changes to architecture, deployment, or workflows.
+- Local path: `/root/buffalo-counter`
+- Preview copy: `/mnt/c/Users/bayar/Desktop/buffalo-counter-preview/`
