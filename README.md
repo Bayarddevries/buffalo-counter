@@ -1,61 +1,53 @@
 # The Buffalo Counter
 
-**A visualization of the Great Buffalo Collapse, 1800-1900**
+**A scroll-driven visualization of the Great Buffalo Collapse, 1800–1900**
 
-> 60,000,000 buffalo in 1800 → fewer than 1,000 by 1900
+> 30 million buffalo in 1800 → fewer than 500 by 1900
 
 ---
 
 ## Overview
 
-The Buffalo Counter is an accessible, interactive visualization that shows the catastrophic decline of the North American plains buffalo over the 19th century. Users can scrub through a timeline from 1800 to 1900 and watch the population collapse from 60 million to near-zero.
+The Buffalo Counter is an interactive, scroll-driven narrative that shows the catastrophic decline of the North American plains buffalo over the 19th century. Scroll through 8 historical snapshots from 1800 to 1900 and watch the population collapse from 30 million to near-zero.
 
-The collapse wasn't natural — it was deliberate. Commercial hunting, military campaigns, and government policy combined to destroy the foundation of Plains Indigenous life. The Métis, who depended on buffalo for food, clothing, and trade, watched their world disappear in a single lifetime.
+The collapse wasn't natural — it was deliberate. Commercial hunting, railroad expansion, and US military policy combined to destroy the foundation of Plains Indigenous life. The Métis, who depended on buffalo for food, clothing, and trade, watched their world disappear in a single lifetime.
 
 ## Features
 
-- **Live counter** — Watch the population tick down in real-time
-- **Timeline scrubber** — Drag or click to any year between 1800-1900
-- **Keyboard navigation** — Full keyboard support (Arrow keys, Home, End, Space)
-- **Play/Pause** — Watch the collapse unfold automatically
-- **Touch support** — Works on mobile devices with touch gestures
-- **Historical events** — Key moments that drive the decline
-- **Visual feedback** — Counter turns red as population drops below 1 million
-- **Status indicator** — Real-time status updates for screen readers
-- **Accessible** — Full ARIA support, semantic HTML, keyboard navigation
-
-## Accessibility
-
-This project is designed with accessibility as a core principle:
-
-- **ARIA labels and live regions** — Screen readers announce changes
-- **Keyboard navigation** — Full keyboard support without a mouse
-- **Semantic HTML** — Proper landmarks and heading hierarchy
-- **Focus management** — Visible focus indicators
-- **Color contrast** — WCAG AA compliant color ratios
-- **Reduced motion** — Respects prefers-reduced-motion preference
-- **Skip link** — Allows keyboard users to skip to main content
+- **Scroll-driven narrative** — Full-page CSS scroll-snap cards. Scroll to advance through history
+- **Live counter** — Population ticks down as you scroll, displayed in IM Fell English typeface
+- **8 historical snapshots** — 1800 (abundance) → 1825 (pressure builds) → 1850 (commercial exploitation) → 1865 (railroads enable mass killing) → 1870 (collapse) → 1880 (scavenging bones) → 1889 (last herds) → 1900 (functional extinction)
+- **Color-coded counter** — Green (stable) → gold (declining) → orange (warning) → red (critical) → dark red (extinct)
+- **Timeline bar** — Drains from full to empty as the population falls. Color shifts with population level. Pulse animation at critical (<100K) and extinction (<10K) thresholds
+- **Citation system** — Every factual claim has an inline citation. Click any `[1]` marker to see the source
+- **Sources panel** — 9 academic references with DOI links, collapsible at the bottom of the page
+- **Splash intro** — Historical context overlay with period photograph, dismissed on click
+- **Responsive** — Works on mobile and desktop with touch scroll
+- **Accessible** — ARIA live regions for screen readers, semantic HTML, focus management
 
 ## How It Works
 
-The visualization uses linear interpolation between historical population estimates:
+The visualization uses linear interpolation between published historical population estimates:
 
 | Year | Population |
 |------|------------|
-| 1800 | 60,000,000 |
-| 1850 | 30,000,000 |
-| 1870 | 5,000,000 |
-| 1880 | 200,000 |
-| 1889 | 1,000 |
+| 1800 | 30,000,000 |
+| 1850 | 20,000,000 |
+| 1865 | 13,500,000 |
+| 1870 | 5,500,000 |
+| 1880 | 395,000 |
+| 1889 | 653 |
 | 1900 | 500 |
+
+The exact pre-contact number is debated (Seton's ~60M vs. Flores' ~30M). This site uses Flores' 30M estimate. The scale of collapse is undisputed regardless of which estimate you use.
 
 ## Tech Stack
 
 - **Pure HTML/CSS/JavaScript** — No build step, no frameworks
 - **CSS Custom Properties** — Design tokens for theming
-- **Google Fonts** — Crimson Text (serif), Space Grotesk (sans-serif)
+- **CSS scroll-snap** — Card-based scroll navigation
+- **Google Fonts** — IM Fell English (counter/headings), IBM Plex Sans (body)
 - **Responsive design** — Works on mobile and desktop
-- **Accessibility** — ARIA, semantic HTML, keyboard navigation
 
 ## Running Locally
 
@@ -71,14 +63,6 @@ open index.html
 python3 -m http.server 8000
 # Then visit http://localhost:8000
 ```
-
-## Keyboard Shortcuts
-
-- **Arrow Left/Right** — Move timeline by 1 year (Shift + Arrow for 10 years)
-- **Home** — Jump to 1800
-- **End** — Jump to 1900
-- **Space/Enter** — Play/Pause animation
-- **Escape** — Stop animation
 
 ## Deployment
 
@@ -124,6 +108,10 @@ buffalo-counter/
 ├── styles.css              # All styles
 ├── app.js                  # All JavaScript
 ├── README.md               # This file
+├── AGENTS.md               # AI agent instructions
+├── CHANGELOG.md            # Version history
+├── images/                 # Historical photos
+├── scripts/                # Helper scripts
 └── .github/
     └── workflows/
         └── deploy.yml      # GitHub Pages deployment
@@ -140,7 +128,7 @@ buffalo-counter/
 
 CC0 1.0 Universal — Public Domain
 
-## Citation
+## Sources
 
 Every data point and claim in this visualization is sourced from published academic and historical works:
 
@@ -162,7 +150,3 @@ Every data point and claim in this visualization is sourced from published acade
 - **Payant, C. (2003).** *The Métis: The People, the History, the Culture*. Fitzhenry & Whiteside.
 
 Population data points shown are linear interpolations between published estimates. The 1900 data point (~500) is estimated from conservation-era records, not from Hornaday's 1889 survey. The exact pre-contact number is debated (Seton's 60M vs. Flores' 30M) — the scale of collapse, however, is undisputed.
-
----
-
-## License
