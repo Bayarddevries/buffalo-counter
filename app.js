@@ -163,8 +163,12 @@ function updateFromScroll() {
         activeCard = bottomCard;
     }
 
-    // Update counter display
-    updateFromYear(interpolatedYear);
+    // Update counter display — snap to active card's year when visible
+    if (activeCard) {
+        updateFromYear(parseInt(activeCard.dataset.year, 10));
+    } else {
+        updateFromYear(interpolatedYear);
+    }
 
     // Update active card visual state
     $cards.forEach(c => c.classList.remove('active'));
