@@ -2,6 +2,8 @@
 // Data
 // ===================================
 
+const MAX_POP = 30000000;
+
 const DATA_POINTS = [
     { year: 1800, pop: 30000000 },
     { year: 1850, pop: 20000000 },
@@ -92,9 +94,35 @@ function updateFromYear(year) {
 
     if ($status) $status.textContent = STATUS[st];
 
+    // === Timeline fill: data-proportional + dynamic color + effects ===
     if ($fill) {
-        const progress = (currentYear - 1800) / (1900 - 1800);
-        $fill.style.width = Math.min(100, Math.max(0, (1 - progress) * 100)) + '%';
+        const remaining = Math.max(0, currentPop / MAX_POP);
+        $fill.style.width = (remaining * 100) + '%';
+
+        // Dynamic color — maps population level to bar color
+        let fillColor;
+        let effectClass = '';
+        if (currentPop < 10000) {
+            fillColor = 'var(--color-danger-dark)';
+            effectClass = 'pulse-extinct';
+        } else if (currentPop < 100000) {
+            fillColor = 'var(--color-danger)';
+            effectClass = 'pulse-critical';
+        } else if (currentPop < 1000000) {
+            fillColor = 'var(--color-warning)';
+        } else if (currentPop < 15000000) {
+            fillColor = 'var(--color-accent)';
+        } else {
+            fillColor = 'var(--color-pop-green)';
+        }
+        $fill.style.background = fillColor;
+
+        // Toggle pulse animation classes (avoid reflow churn)
+        if (effectClass !== ($fill.dataset.effect || '')) {
+            $fill.dataset.effect = effectClass;
+            $fill.className = 'timeline-fill';
+            if (effectClass) $fill.classList.add(effectClass);
+        }
     }
 }
 

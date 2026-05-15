@@ -242,10 +242,30 @@ body {
     top: 0;
     right: 0;
     height: 100%;
-    background: linear-gradient(90deg, var(--color-pop-green), var(--color-danger));
     border-radius: 999px;
     width: 0%;
     will-change: width;
+    transition: background 0.4s ease, width 0.2s ease;
+}
+
+/* Pulse animation when population hits critical (< 100K) */
+@keyframes pulse-critical {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+.timeline-fill.pulse-critical {
+    animation: pulse-critical 1.8s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--color-danger);
+}
+
+/* Slower, dimmer pulse for extinction (< 10K) — fading out */
+@keyframes pulse-extinct {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.2; }
+}
+.timeline-fill.pulse-extinct {
+    animation: pulse-extinct 2.5s ease-in-out infinite;
+    box-shadow: 0 0 4px var(--color-danger-dark);
 }
 
 /* ===================================
