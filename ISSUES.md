@@ -7,6 +7,8 @@ This file tracks the current state of the project, including bugs, feature reque
 | ID | Task | Priority | Status | Notes |
 |:---|:---|:---:|:---:|:---|
 | BUF-6 | Final panel closing animation | Medium | Pending | Full-screen experience to make the end feel final. Needs a concluding animation or overlay on the 1900 card. |
+| BUF-7 | Scroll-snap not working on mobile | High | Pending | Cards don't snap properly on mobile viewports. Also reported as not working correctly on desktop scroll. Needs investigation. |
+| BUF-8 | Timeline bar invisible on desktop | Medium | Pending | The 6px year-linear bar is nearly invisible against `#111` background, and hidden behind splash overlay on initial load. Needs pop-proportional redesign for visibility + accuracy. |
 
 ## Completed
 
