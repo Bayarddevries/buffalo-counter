@@ -94,10 +94,10 @@ function updateFromYear(year) {
 
     if ($status) $status.textContent = STATUS[st];
 
-    // === Timeline fill: data-proportional + dynamic color + effects ===
+    // === Timeline fill: time-proportional + dynamic color + effects ===
     if ($fill) {
-        const remaining = Math.max(0, currentPop / MAX_POP);
-        $fill.style.width = (remaining * 100) + '%';
+        const progress = (currentYear - 1800) / (1900 - 1800);
+        $fill.style.width = Math.min(100, Math.max(0, (1 - progress) * 100)) + '%';
 
         // Dynamic color — maps population level to bar color
         let fillColor;

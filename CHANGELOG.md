@@ -2,13 +2,13 @@
 
 All notable changes to this project are documented here.
 
-## [2026-05-16] v1.7 — Data-Proportional Timeline & Image Refresh
+## [2026-05-16] v1.7 — Dynamic Timeline Colors & Image Refresh
 
 - **img**: Swap 1800 card image — pc005127.jpg (Bell Photo, Buffalo National Park herd) replaces buffalo-trade-illustration.webp
 - **img**: Swap 1825 card image — e000009381.jpg (Métis freighting brigade with Red River cart) replaces Paul Kane painting
 - **img**: Swap 1850 card image — Gull-Lake-Sasketchewan-1890-768x637.jpg (bone pile at Gull Lake, Saskatchewan) replaces e000009381.jpg
 - **img**: Swap 1865 card image — 6-4-768x572.jpg (CPR boxcar with buffalo bones) replaces bison-skull-pile.jpg
-- **feat**: Convert timeline fill from time-linear to data-proportional (pop ratio) — bar stays deceptively full through early decades, then crashes dramatically at the 1870 collapse
+- **fix**: Reverted fill metric to time-linear (year-proportional) — pop ratio felt deceptive, steady year-based drain preferred
 - **feat**: Dynamic timeline fill color — green (stable) → gold (declining) → orange (warning) → red (critical) → dark red (extinct), transitions smoothly with population level
 - **feat**: Pulse animation on timeline fill at critical (< 100K) — pulsing red glow, 1.8s cycle
 - **feat**: Fade-out pulse on timeline fill at extinction (< 10K) — slow 2.5s dimming pulse, box-shadow fades
