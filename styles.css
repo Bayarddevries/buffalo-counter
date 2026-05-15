@@ -298,12 +298,7 @@ body {
     box-sizing: border-box;
 }
 
-/* On mobile, use mandatory snap so cards don't get skipped by touch momentum */
-@media (max-width: 767px) {
-    .cards-section {
-        scroll-snap-type: y mandatory;
-    }
-}
+/* No mobile mandatory override — proximity + full-height cards is sufficient */
 
  .card {
     scroll-snap-align: start;
@@ -330,6 +325,19 @@ body {
     scroll-snap-stop: normal;
     padding-bottom: 30vh;
     /* Extra space to scroll past the finale */
+}
+
+/* Scroll buffer — invisible spacer that absorbs trailing momentum past the final card */
+.card-buffer {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+    min-height: 80vh;
+    opacity: 0;
+    pointer-events: none;
+    transform: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 
