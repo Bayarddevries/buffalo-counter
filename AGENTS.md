@@ -14,23 +14,30 @@
 
 ---
 
-## Current Architecture (as of 2026-05-13)
+**Current Architecture (as of 2026-05-14)** — v1.6
 
 ### Interaction Model: Scroll-Driven Snap Cards
 
-The site uses **full-page CSS scroll-snap cards** as the primary interaction model. Users scroll through events, and a sticky counter at the top updates in real-time via scroll position interpolation. Auto-play/timer model was abandoned in favor of user-controlled scroll.
+The site uses **full-page CSS scroll-snap cards** as the primary interaction model. Users scroll through events, and a sticky counter at the top updates based on the active card. Auto-play/timer model was abandoned in favor of user-controlled scroll.
 
 ### File Structure
 
 ```
 buffalo-counter/
 ├── index.html              # HTML: splash, counter, timeline, scroll-snap cards, sources bar
-├── styles.css              # All styles, design tokens, scroll-snap rules, responsive
-├── app.js                  # JS: IntersectionObserver, scroll interpolation, counter logic
+├── styles.css              # All styles, design tokens, scroll-snap rules, responsive, citation toast, side indicators
+├── app.js                  # JS: scroll interpolation, counter logic, splash, sources, citation toast
 ├── README.md               # User-facing documentation
 ├── AGENTS.md               # This file
 ├── CHANGELOG.md            # Version history
+├── ISSUES.md               # Project issue tracker
+├── BUF-0-debug-final-card-snap.md  # Debug document for final-card snap alignment fix
 ├── images/                 # Historical photos (lazy-loaded in card images)
+├── docs/                   # Generated docs / deployment artifacts
+├── scripts/                # Helper scripts
+├── media/                  # Unused media prototypes
+├── option-a.html through option-d.html  # Unmerged design prototypes
+├── scroll-prototype.html, design-review.html, design-showcase.html  # Prototypes
 └── .github/
     └── workflows/
         └── deploy.yml      # GitHub Pages deployment
@@ -38,16 +45,20 @@ buffalo-counter/
 
 ### How Scroll-Driven Counter Works
 
-1. **CSS scroll-snap**: `scroll-snap-type: y mandatory` on `.cards-section`, each `.card` has `scroll-snap-align: start`
-2. **IntersectionObserver**: Watches cards, adds/removes `.active` class at threshold 0.5
-3. **Scroll interpolation**: On scroll events (rAF-throttled), finds the two cards the viewport center is between, calculates `clampedProgress`, and linearly interpolates year + population between their data points
-4. **Counter color**: Dynamically maps population to CSS classes — green (`stable`) → yellow (`warning`) → red/deep red (`critical`/`extinct`)
+1. **CSS scroll-snap**: `scroll-snap-type: y proximity` on `.cards-section`, each `.card` has `scroll-snap-align: start`. Final card uses `scroll-snap-stop: always` disabled to allow free scroll past the end.
+2. **Scroll event listener** (rAF-throttled): `updateFromScroll()` finds the two cards bracketing the viewport center, calculates `clampedProgress`, and picks the closer card as `activeCard`.
+3. **Year snapping (v1.6)**: Counter snaps to the **active card's year** (e.g., `1880`) instead of interpolating between data points. This avoids displaying partial years (e.g., `1874.3`) that don't correspond to any real data.
+4. **Bar drain direction**: Timeline fill bar is right-anchored — it drains from 100% (full, 1800) to 0% (empty, 1900), matching the depletion concept.
+5. **Counter color**: Dynamically maps population to CSS classes — green (`stable`, 30M) → yellow (`declining`) → orange (`warning`) → red (`critical`) → dark red (`extinct`, <1000).
+6. **Side rail scroll-position indicators (v1.6)**: Fixed right rail with vertical gold dots, one per card. Active dot highlights based on current card.
 
 ### Key Files
 
-- **index.html** — DOM structure: splash overlay, sticky counter, timeline, 8 snap cards (1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900), collapsible sources bar
-- **styles.css** — Design tokens, scroll-snap container rules, card animations, dynamic counter color classes, IM Fell English typography for counter value
-- **app.js** — `DATA_POINTS` array (7 data points), `setupCardObserver()` (IntersectionObserver), `setupScrollInterpolation()` (scroll math), `updateFromYear()` (counter + color + timeline), `setupSplash()`, `setupSources()`
+- **index.html** — DOM structure: splash overlay, sticky counter, timeline, 8 snap cards (1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900), collapsible sources bar, citation links in card copy
+- **styles.css** — Design tokens, scroll-snap container rules, card animations, dynamic counter color classes, IM Fell English typography, citation toast styles, side rail indicator styles
+- **app.js** — `DATA_POINTS` array (7 data points), `setupScrollInterpolation()` (scroll math, active card detection), `updateFromYear()` (counter + color + timeline), `setupSplash()`, `setupSources()`, `setupCitationToast()`
+- **PROJECT_SUMMARY.md** — Complete project summary (legacy, may be outdated)
+- **BUF-0-debug-final-card-snap.md** — Investigation document for the final-card CSS alignment fix
 
 ### Population Data (`DATA_POINTS` in app.js)
 
@@ -132,13 +143,33 @@ git push
 
 | Commit | Message | Date |
 |--------|---------|------|
-| `144203c` | feat: switch to scroll-driven snap layout matching scroll prototype | 2026-05-13 |
-| `321cd66` | feat: merge Option D layout with scroll-snap cards, Color A, and new typography | 2026-05-13 |
+| `9110a97` | Snap counter year to active card instead of interpolating | 2026-05-14 |
+| `a534fea` | Fix bar drain direction: right-anchor so fill drains from left | 2026-05-14 |
+| `6dddf41` | Fix crash: remove stale $section reference that broke scroll handler | 2026-05-14 |
+| `cc174d9` | Remove slide dots, restore CSS timeline labels | 2026-05-14 |
+| `dbf3a1e` | Move timeline dots to side as scroll-position indicators | 2026-05-14 |
+| `aa0e23b` | Fix bottom text cutoff: add 15vh padding to cards-section container | 2026-05-14 |
+| `ed2ddfb` | chore: bump cache-buster to v4 for CSS | 2026-05-14 |
+| `60bf6b2` | fix: restore broken link tag after cache-bust update | 2026-05-14 |
+| `c596ef0` | chore: cache-bust styles.css on deploy (v3) | 2026-05-14 |
+| `baf5196` | fix: change scroll-snap-type to proximity for free scroll past final card | 2026-05-14 |
+| `824cf9f` | fix: override scroll-snap-stop on final card | 2026-05-14 |
+| `94b9ae0` | fix: disable snap on final card, add bottom padding, allow full scroll | 2026-05-14 |
+| `8b30e20` | fix: make cards internally scrollable; resolve last pane overflow | 2026-05-14 |
+| `5db1e0c` | fix: stabilize card heights with aspect-ratio; prevent cutoff | 2026-05-14 |
+| `3502ef6` | style: smooth splash fade transition (0.6s ease) | 2026-05-14 |
+| `15836fe` | fix: restore 1889 card image link | 2026-05-14 |
+| `691c2a6` | fix: replace IntersectionObserver with scroll-driven active card sync | 2026-05-14 |
+| `b13b0f7` | feat: add impactful final image to 1900 card (Glenbow skull pile) | 2026-05-14 |
+| `4a2e59e` | img: replace Metis brigades & hide trade images | 2026-05-14 |
+| `7709e70` | feat: implement strict inline citations for academic rigor | 2026-05-14 |
+| `144203c` | feat: switch to scroll-driven snap layout | 2026-05-13 |
+| `321cd66` | feat: merge Option D layout with scroll-snap cards | 2026-05-13 |
 | `54e9968` | fix: prevent double-remove of splash overlay on close | 2026-05-13 |
-| `dadf64b` | Humanize copy: remove em dashes, past tense, conversational voice | 2026-05-12 |
-| `6ee8886` | Add splash intro overlay, remove historical context section | 2026-05-12 |
+| `dadf64b` | Humanize copy: remove em dashes, past tense | 2026-05-12 |
+| `6ee8886` | Add splash intro overlay, remove historical context | 2026-05-12 |
 | `49cc447` | Add historical images and collapsible sources bar | 2026-05-12 |
-| `3a3941a` | Peer review fixes: historical corrections, accessibility, performance | 2026-05-12 |
+| `3a3941a` | Peer review fixes: historical corrections, accessibility | 2026-05-12 |
 | `d1629bd` | Add comprehensive project summary | 2026-05-12 |
 | `d0625ea` | Redesign: mobile-first responsive layout with sticky counter | 2026-05-12 |
 | `64c1c89` | Add event markers to timeline with tooltips | 2026-05-12 |

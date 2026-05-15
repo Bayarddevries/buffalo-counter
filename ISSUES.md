@@ -6,18 +6,22 @@ This file tracks the current state of the project, including bugs, feature reque
 
 | ID | Task | Priority | Status | Notes |
 |:---|:---|:---:|:---:|:---|
-| BUF-4 | Add impactful final image | Medium | Pending | Needed for the closing panel to leave a lasting impression. |
-| BUF-5 | Splash page fade transition | Low | Pending | Implement smooth fade-out of splash into the main UI. |
-| BUF-6 | Final panel closing animation | Medium | Pending | Full-screen experience to make the end feel final. |
+| BUF-6 | Final panel closing animation | Medium | Pending | Full-screen experience to make the end feel final. Needs a concluding animation or overlay on the 1900 card. |
 
 ## Completed
 
+- [x] BUF-0 — Fix final card snap alignment (CSS `--counter-height` mismatch, malformed mobile media query)
+- [x] BUF-1 — Remove emojis from all cards
+- [x] BUF-2 — Re-integrate inline citations for all numbers/historical claims (citation toast bar with clickable `<a class="cite">` links)
+- [x] BUF-3 — Replace Metis brigades map image with better alternative (Paul Kane painting, LAC Boundary Commission photo)
+- [x] BUF-4 — Add impactful final image to 1900 card (Glenbow skull pile photo, ca. 1890)
+- [x] BUF-5 — Splash page fade transition (0.6s ease opacity, will-change: opacity)
 - [x] Initial MVP Deployment
 - [x] Scroll-driven snap architecture
-- [x] Mobile responsiveness (Basic)
-- [x] Historical image integration (Initial)
+- [x] Mobile responsiveness
+- [x] Historical image integration
 - [x] Fixed desktop aspect ratio cutoff
-- [x] BUF-1 — Remove emojis from all cards
-- [x] BUF-2 — Re-integrate inline citations for all numbers/historical claims
-- [x] BUF-3 — Replace Metis brigades map image with better alternative
-- [x] BUF-0 — Fix scroll-snap mandatory→proximity + bottom text cutoff
+- [x] Scroll position side indicators (side rail gold dots instead of horizontal slider dots)
+- [x] Bar drain direction (right-anchor, fill drains from left → right)
+- [x] Counter snaps to active card year instead of interpolating between years
+- [x] Cards internally scrollable to prevent text cutoff on last pane

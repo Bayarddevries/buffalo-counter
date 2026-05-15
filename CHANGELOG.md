@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here.
 
+## [2026-05-14] v1.6 — Citation Toast, Scroll Fixes & Side Timeline Dots
+
+- **feat**: Implement strict inline citations — `<a class="cite" data-source="...">` on all historical claims, clickable citation toast bar with 4s auto-hide
+- **feat**: Add impactful final image to 1900 card — Glenbow skull pile photo (ca. 1890)
+- **img**: Replace Metis brigades & hide trade images — Paul Kane painting and LAC Boundary Commission photo
+- **fix**: Replace IntersectionObserver with scroll-driven active card sync — resolves 1889 snap issue
+- **fix**: Restore 1889 card image link (use existing bison-skull-pile.jpg)
+- **fix**: Stabilize card heights with `aspect-ratio`; prevent image cutoff and scroll-snap drift
+- **fix**: Make cards internally scrollable; resolve last pane overflow issue
+- **fix**: Disable snap on final card, add bottom padding, allow full scroll to conclusion
+- **fix**: Change `scroll-snap-type` to `proximity` to allow free scroll past final card
+- **fix**: Override `scroll-snap-stop` on final card
+- **fix**: Bottom text cutoff — add 15vh padding to cards-section container
+- **fix**: Stale `$section` reference crash — remove broken closure reference in scroll handler
+- **style**: Smooth splash fade transition (0.6s ease, `will-change: opacity`)
+- **ux**: Move timeline dots to side rail as scroll-position indicators (fixed right, vertical, gold dots)
+- **ux**: Remove slide dots, restore CSS timeline labels
+- **ux**: Fix bar drain direction — right-anchor so fill drains from the left (empty→full reversed to full→empty)
+- **ux**: Snap counter year to active card instead of interpolating (avoids showing partial years between data points)
+- **chore**: Cache-bust styles.css on deploy (v3→v4)
+- **chore**: Add BUF-0 debug document for final-card snap alignment investigation
+
 ## [2026-05-13] v1.5 — Scroll-Driven Snap Layout (Current Production)
 
 - **MAJOR**: Replaced schedule-driven auto-play animation with scroll-snap card layout
