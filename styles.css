@@ -413,6 +413,28 @@ body {
     font-style: italic;
 }
 
+/* Final card closing image — full width, natural proportion, no crop */
+.card-image-final {
+    margin: 1.25rem 0 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: rgba(0,0,0,0.2);
+}
+
+.card-image-final img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-lg);
+}
+
+.card-image-final figcaption {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-top: 0.4rem;
+    font-style: italic;
+}
+
 .card-text {
     font-family: var(--font-body);
     font-size: clamp(1rem, 3vw, 1.1rem);
