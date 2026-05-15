@@ -293,9 +293,17 @@ body {
     height: 100vh;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+    scroll-padding-top: 180px;  /* offset for sticky counter so card content is visible when snapped */
     /* Extra bottom padding so the last card's text + footer fully clear the viewport */
     padding-bottom: 15vh;
     box-sizing: border-box;
+}
+
+/* On mobile, use mandatory snap so cards don't get skipped by touch momentum */
+@media (max-width: 767px) {
+    .cards-section {
+        scroll-snap-type: y mandatory;
+    }
 }
 
  .card {
@@ -637,7 +645,6 @@ body {
     .card {
         justify-content: flex-start;
         padding: 1.25rem 1rem;
-        min-height: calc(100vh - var(--counter-height) - 60px);
         
     }
 
