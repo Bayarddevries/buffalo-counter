@@ -312,6 +312,9 @@ body {
     height: 100vh;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+    /* Extra bottom padding so the last card's text + footer fully clear the viewport */
+    padding-bottom: 15vh;
+    box-sizing: border-box;
 }
 
  .card {
