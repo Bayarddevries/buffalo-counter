@@ -170,14 +170,6 @@ function updateFromScroll() {
     $cards.forEach(c => c.classList.remove('active'));
     if (activeCard) activeCard.classList.add('active');
 
-    // Update slide dots to match current card
-    if ($dots) {
-        const dots = $dots.querySelectorAll('.slide-dot');
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', activeCard && activeCard === $cards[i]);
-        });
-    }
-
     // Hide scroll prompt on first interaction
     if (!promptHidden && $prompt) {
         $prompt.style.display = 'none';
