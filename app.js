@@ -37,7 +37,6 @@ const $year = document.getElementById('counterYear');
 const $pop = document.getElementById('counterValue');
 const $status = document.getElementById('counterStatus');
 const $fill = document.getElementById('timelineFill');
-const $dots = document.getElementById('timelineDots');
 const $prompt = document.getElementById('scrollPrompt');
 const $cards = document.querySelectorAll('.card[data-year]');
 const $section = document.getElementById('cardsSection');
@@ -71,20 +70,6 @@ function getStatus(pop) {
     if (pop < 1000000) return 'warning';
     if (pop < 10000000) return 'declining';
     return 'green';
-}
-
-// ===================================
-// Timeline dots
-// ===================================
-function createTimelineDots() {
-    if (!$dots) return;
-    $dots.innerHTML = '';
-    $cards.forEach((card, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
-        dot.dataset.index = i;
-        $dots.appendChild(dot);
-    });
 }
 
 // ===================================
@@ -271,7 +256,6 @@ function setupCitationToast() {
 // Init
 // ===================================
 function init() {
-    createTimelineDots();
     updateFromYear(1800);
     // Set initial active card
     if ($cards.length > 0) $cards[0].classList.add('active');
