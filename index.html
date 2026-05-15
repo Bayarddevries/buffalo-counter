@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital,wght@0,400;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 
@@ -52,19 +52,20 @@
             <div class="counter-label">Plains Buffalo</div>
             <div class="counter-status" id="counterStatus" aria-live="polite">Population stable</div>
         </div>
+        <!-- Timeline inside sticky header so it stays visible on mobile -->
+        <div class="timeline-wrap">
+            <div class="timeline-track">
+                <div class="timeline-fill" id="timelineFill"></div>
+            </div>
+            <div class="timeline-labels">
+                <span>1800</span>
+                <span>1850</span>
+                <span>1900</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Timeline -->
-    <div class="timeline-wrap">
-        <div class="timeline-track">
-            <div class="timeline-fill" id="timelineFill"></div>
-        </div>
-        <div class="timeline-labels">
-            <span>1800</span>
-            <span>1850</span>
-            <span>1900</span>
-        </div>
-    </div>
+    <!-- Timeline (moved inside counter-sticky above) -->
 
     <!-- Scroll Prompt -->
     <div class="scroll-prompt" id="scrollPrompt" aria-hidden="true">
