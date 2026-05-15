@@ -79,9 +79,9 @@ function getStatus(pop) {
 function createTimelineDots() {
     if (!$dots) return;
     $dots.innerHTML = '';
-    EVENT_YEARS.forEach((year, i) => {
+    $cards.forEach((card, i) => {
         const dot = document.createElement('div');
-        dot.className = 'timeline-dot' + (i === 0 ? ' active' : '');
+        dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
         dot.dataset.index = i;
         $dots.appendChild(dot);
     });
@@ -109,14 +109,7 @@ function updateFromYear(year) {
 
     if ($fill) {
         const progress = (currentYear - 1800) / (1900 - 1800);
-        $fill.style.width = Math.min(100, Math.max(0, progress * 100)) + '%';
-    }
-
-    if ($dots) {
-        const dots = $dots.querySelectorAll('.timeline-dot');
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', currentYear >= EVENT_YEARS[i]);
-        });
+        $fill.style.width = Math.min(100, Math.max(0, (1 - progress) * 100)) + '%';
     }
 }
 
@@ -191,6 +184,14 @@ function updateFromScroll() {
     // Update active card visual state
     $cards.forEach(c => c.classList.remove('active'));
     if (activeCard) activeCard.classList.add('active');
+
+    // Update slide dots to match current card
+    if ($dots) {
+        const dots = $dots.querySelectorAll('.slide-dot');
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', activeCard && activeCard === $cards[i]);
+        });
+    }
 
     // Hide scroll prompt on first interaction
     if (!promptHidden && $prompt) {
