@@ -14,19 +14,29 @@
 
 ---
 
-**Current Architecture (as of 2026-05-14)** — v1.6
+**Current Architecture (as of 2026-05-21)** — v1.9
 
 ### Interaction Model: Scroll-Driven Snap Cards
 
 The site uses **full-page CSS scroll-snap cards** as the primary interaction model. Users scroll through events, and a sticky counter at the top updates based on the active card. Auto-play/timer model was abandoned in favor of user-controlled scroll.
 
+### Atmospheric Backgrounds (v1.9)
+
+Three fixed-position elements sit behind the card stack to create an immersive historical atmosphere:
+
+- **`.atmo-bg`** — Full-bleed, fixed, `z-index: -1`. A historical photo fills the screen and changes as the user scrolls through eras (JS swaps `background-image` in `app.js` based on active card year).
+- **`.atmo-overlay`** — Fixed, `z-index: 0`, `pointer-events: none`. Radial gradient vignette: transparent at center → `rgba(10,10,10,0.85)` at edges. Darkens the background photo so card text remains readable.
+- **`.atmo-side-left` / `.atmo-side-right`** — Fixed side panels, `backdrop-filter: blur(24px)`, `background: rgba(10,10,10,0.3)`. Visible on wide viewports (>1200px), they add atmospheric depth without obscuring content.
+
+**CSS containment:** `html` and `body` have `height: 100%` + `overflow: hidden` so only `.cards-section` (which has `overflow-y: auto`) scrolls. This prevents the double-scrollbar bug where the outer page scroll competed with the card snap container.
+
 ### File Structure
 
 ```
 buffalo-counter/
-├── index.html              # HTML: splash, counter, timeline, scroll-snap cards, sources bar
-├── styles.css              # All styles, design tokens, scroll-snap rules, responsive, citation toast, side indicators
-├── app.js                  # JS: scroll interpolation, counter logic, splash, sources, citation toast
+├── index.html              # HTML: splash, counter, timeline, scroll-snap cards, sources bar, atmospheric background elements (.atmo-bg, .atmo-overlay, .atmo-side-*)
+├── styles.css              # All styles, design tokens, scroll-snap rules, atmospheric backgrounds (v1.9), responsive, citation toast, side indicators
+├── app.js                  # JS: scroll interpolation, counter logic, splash, sources, citation toast, era-based background image switching
 ├── README.md               # User-facing documentation
 ├── AGENTS.md               # This file
 ├── CHANGELOG.md            # Version history
@@ -143,6 +153,8 @@ git push
 
 | Commit | Message | Date |
 |--------|---------|------|
+| `8b7316a` | fix: add missing atmo CSS + prevent double scrollbar with overflow hidden on html/body | 2026-05-21 |
+| `6c72f44` | feat(design): add atmospheric side panels + full-bleed era backgrounds; cache-bust; restore .gitignore and workflow | 2026-05-21 |
 | `9110a97` | Snap counter year to active card instead of interpolating | 2026-05-14 |
 | `a534fea` | Fix bar drain direction: right-anchor so fill drains from left | 2026-05-14 |
 | `6dddf41` | Fix crash: remove stale $section reference that broke scroll handler | 2026-05-14 |
@@ -196,7 +208,7 @@ Old keyboard shortcuts (Arrow keys, Space, Home, End) from the auto-play model a
 - Prefers "high concept, low effort" — direct, human conversational copy
 
 ### Tech Environment
-- WSL on Windows, 8GB RAM
+- Linux (Pop!_OS), 8GB RAM, GTX 1070 8GB (CPU-only for local models)
 - GitHub org: Bayarddevries
-- Local path: `/root/buffalo-counter`
+- Local path: `/home/bayarddevries/buffalo-counter`
 - Preview copy: `/mnt/c/Users/bayar/Desktop/buffalo-counter-preview/`

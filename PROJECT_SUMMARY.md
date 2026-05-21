@@ -9,20 +9,21 @@
 
 ## What We Built
 
-An interactive visualization of the catastrophic decline of the North American buffalo population from 60 million in 1800 to fewer than 1,000 by 1900.
+An interactive **scroll-driven visualization** of the catastrophic decline of the North American buffalo population from ~30 million in 1800 to fewer than 500 by 1900. Users scroll through full-page snap cards; a sticky counter and timeline update in real time. Historical photos appear as full-bleed atmospheric backgrounds behind the cards, switching as the user moves through eras.
 
 ### Key Features
 
-✅ **Live counter** — Watch population tick down in real-time
-✅ **Timeline scrubber** — Drag or click to any year (1800-1900)
-✅ **Play/Pause** — Watch the collapse unfold automatically
-✅ **Keyboard navigation** — Full keyboard support (Arrow keys, Home, End, Space)
-✅ **Touch support** — Works on mobile devices
-✅ **Event markers** — 5 interactive historical events on the timeline
-✅ **Tooltips** — Hover over markers for event details
-✅ **Click to jump** — Click any marker to jump to that year
-✅ **Visual feedback** — Counter turns red below 1 million
-✅ **Accessibility** — WCAG AA compliant with ARIA labels and screen reader support
+✅ **Scroll-snap card layout** — 8 full-page cards (1800, 1825, 1850, 1865, 1870, 1880, 1889, 1900) snap into view on scroll
+✅ **Live counter** — Population value snaps to the active card's year, never interpolates to fractional years
+✅ **Dynamic timeline** — Fill bar drains right-to-left as population declines; color shifts green → gold → orange → red → dark red
+✅ **Atmospheric backgrounds (v1.9)** — Full-bleed historical photos fill the screen, switching per era via JS-driven `background-image` swaps
+✅ **Vignette overlay** — Radial gradient darkens screen edges so card text stays readable
+✅ **Side rail indicators** — Fixed gold dots on right rail show scroll position
+✅ **Inline citations** — Historical claims link to sources via a toast bar
+✅ **Splash overlay** — Historical context fades out on first click
+✅ **Collapsible sources bar** — Full source list at page bottom
+✅ **WCAG AA accessibility** — Keyboard nav, ARIA labels, screen reader support
+✅ **Responsive design** — Works on mobile and desktop
 
 ---
 
@@ -30,7 +31,7 @@ An interactive visualization of the catastrophic decline of the North American b
 
 - **Pure HTML/CSS/JavaScript** — No frameworks, no build step
 - **CSS Custom Properties** — Design tokens for theming
-- **Google Fonts** — Crimson Text (serif), Space Grotesk (sans-serif)
+- **Google Fonts** — IM Fell English (counter headings), IBM Plex Sans (body)
 - **Responsive design** — Works on mobile and desktop
 - **GitHub Actions** — Automatic deployment to GitHub Pages
 
@@ -316,7 +317,7 @@ https://bayarddevries.github.io/buffalo-counter/
 https://github.com/Bayarddevries/buffalo-counter
 
 ### Working Directory
-/tmp/buffalo-counter
+/home/bayarddevries/buffalo-counter
 
 ### Branch
 master

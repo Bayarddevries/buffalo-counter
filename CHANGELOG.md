@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
  
+ ## [2026-05-21] v1.9 — Atmospheric Backgrounds & Double Scroll Fix
+
+- **feat**: Full-bleed atmospheric era backgrounds — a fixed `.atmo-bg` element behind all content switches historical images as the user scrolls through eras (image swaps driven by `app.js` era logic)
+- **feat**: Vignette overlay — radial gradient `.atmo-overlay` darkens screen edges (rgba(10,10,10,0.2) → 0.85) to keep card text readable against photos
+- **feat**: Atmospheric side panels — `.atmo-side-left` and `.atmo-side-right` with `backdrop-filter: blur(24px)` create depth on wide viewports
+- **fix**: Eliminate double scrollbar on desktop — added `height: 100%` and `overflow: hidden` to `html`; added `height: 100%` and `overflow-y: hidden` to `body` so only `.cards-section` scrolls
+- **fix**: Commit 6c72f44 added `.atmo-bg` / `.atmo-overlay` / `.atmo-side` HTML elements and JS logic but missed updating `styles.css` — the CSS rules were absent, causing the atmospheric elements to have no styles and body/html not being constrained
+- **chore**: Cache-bust `styles.css` from v11 → v12 to force reload of new styles on all clients
+- **chore**: Restore `.gitignore` and GitHub Actions workflow after accidental removal
+
  ## [2026-05-21] v1.8 — Repository Cleanup
  
  - **chore**: Remove development artifacts (test scripts, video/still prototypes, sprite generation files)
