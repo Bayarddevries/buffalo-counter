@@ -8,7 +8,10 @@ This file tracks the current state of the project, including bugs, feature reque
 |:---|:---|:---:|:---:|:---|
 | BUF-6 | Final panel closing animation | Medium | Pending | Full-screen experience to make the end feel final. Needs a concluding animation or overlay on the 1900 card. |
 | BUF-7 | Scroll-snap not working on mobile | High | Pending | Cards don't snap properly on mobile viewports. Also reported as not working correctly on desktop scroll. Needs investigation. |
-| BUF-8 | Timeline bar invisible on desktop | Medium | Pending | The 6px year-linear bar is nearly invisible against `#111` background, and hidden behind splash overlay on initial load. Needs pop-proportional redesign for visibility + accuracy. |
+|| BUF-8 | Timeline bar invisible on desktop | Medium | Pending | The 6px year-linear bar is nearly invisible against `#111` background, and hidden behind splash overlay on initial load. Needs pop-proportional redesign for visibility + accuracy. |
+ || BUF-9 | Double scrollbar on desktop | High | Pending | There are two vertical scrollbars on desktop view, indicating an overflow issue on body or container. |
+ || BUF-10 | Excessive bottom spacing / slow scroll | Medium | Pending | Too much space at bottom of each info panel before next appears; scroll takes too long (likely due to large card heights or padding). |
+ || BUF-11 | Replace 1850 card image duplicate | High | Pending | 1850 and 1880 cards currently use very similar images (bone piles). Keep 1880 image, replace 1850 with hunters image from Google Drive (2_hunters_standing_over_dead_buffalo__Scotty_Philip's_herd,_Fort_Pierre,_S.D.__LCCN2006689761.jpg) and update caption. |
 
 ## Completed
 

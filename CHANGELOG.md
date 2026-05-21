@@ -1,7 +1,13 @@
 # Changelog — The Buffalo Counter
 
 All notable changes to this project are documented here.
-
+ 
+ ## [2026-05-21] v1.8 — Repository Cleanup
+ 
+ - **chore**: Remove development artifacts (test scripts, video/still prototypes, sprite generation files)
+ - **chore**: Remove unused `media/` and `scripts/` directories
+ - **chore**: Clean repository root of prototype clutter (improves maintainability)
+ 
 ## [2026-05-16] v1.7 — Dynamic Timeline Colors & Image Refresh
 
 - **img**: Swap 1800 card image — pc005127.jpg (Bell Photo, Buffalo National Park herd) replaces buffalo-trade-illustration.webp
