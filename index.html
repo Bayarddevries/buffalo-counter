@@ -12,6 +12,10 @@
 </head>
 <body>
 
+    <!-- Atmospheric Background (full-bleed, fixed, behind content) -->
+    <div class="atmo-bg" id="atmoBg" aria-hidden="true"></div>
+    <div class="atmo-overlay" aria-hidden="true"></div>
+
     <!-- Splash Overlay -->
     <div class="splash" id="splash" role="dialog" aria-modal="true" aria-label="Introduction">
         <div class="splash-inner">
@@ -77,7 +81,7 @@
     <div class="cards-section" id="cardsSection">
 
         <!-- Card 0: 1800 Intro -->
-        <div class="card active" data-year="1800" data-pop="30000000">
+        <div class="card active" data-year="1800" data-pop="30000000" data-bg="images/pc005127.jpg">
             <div class="card-inner">
                 <div class="card-year">1800</div>
                 <h2 class="card-title">A Vast Ocean of Buffalo</h2>
@@ -94,7 +98,7 @@
         </div>
 
         <!-- Card 1: 1825 Fur Trade -->
-        <div class="card" data-year="1825" data-pop="25000000">
+        <div class="card" data-year="1825" data-pop="25000000" data-bg="images/metis-brigades.jpg">
             <div class="card-inner">
                 <div class="card-year">1825</div>
                 <h2 class="card-title">The Fur Trade Intensifies</h2>
@@ -112,7 +116,7 @@
         </div>
 
         <!-- Card 2: 1850 Hide Trade -->
-        <div class="card" data-year="1850" data-pop="20000000">
+        <div class="card" data-year="1850" data-pop="20000000" data-bg="images/2_hunters_standing_over_dead_buffalo__Scotty_Philip's_herd,_Fort_Pierre,_S.D.__LCCN2006689761.jpg">
             <div class="card-inner">
                 <div class="card-year">1850</div>
                 <h2 class="card-title">The Hide Trade Takes Off</h2>
@@ -129,7 +133,7 @@
         </div>
 
         <!-- Card 3: 1865 Railroads -->
-        <div class="card" data-year="1865" data-pop="13500000">
+        <div class="card" data-year="1865" data-pop="13500000" data-bg="images/6-4-768x572.jpg">
             <div class="card-inner">
                 <div class="card-year">1865</div>
                 <h2 class="card-title">Railroads Reach the Plains</h2>
@@ -146,7 +150,7 @@
         </div>
 
         <!-- Card 4: 1870 Great Collapse -->
-        <div class="card" data-year="1870" data-pop="5500000">
+        <div class="card" data-year="1870" data-pop="5500000" data-bg="images/bison-hides-dodge-city.jpg">
             <div class="card-inner">
                 <div class="card-year">1870</div>
                 <h2 class="card-title">The Great Collapse</h2>
@@ -165,7 +169,7 @@
         </div>
 
         <!-- Card 5: 1880 Bone Trade -->
-        <div class="card" data-year="1880" data-pop="395000">
+        <div class="card" data-year="1880" data-pop="395000" data-bg="images/gathering-buffalo-bones.jpg">
             <div class="card-inner">
                 <div class="card-year">1880</div>
                 <h2 class="card-title">Picking the Bones Clean</h2>
@@ -184,7 +188,7 @@
         </div>
 
         <!-- Card 6: 1889 Last Herds -->
-        <div class="card" data-year="1889" data-pop="653">
+        <div class="card" data-year="1889" data-pop="653" data-bg="images/bison-skull-pile.jpg">
             <div class="card-inner">
                 <div class="card-year">1889</div>
                 <h2 class="card-title">The Last of the Herds</h2>
@@ -201,7 +205,7 @@
         </div>
 
         <!-- Card 7: 1900 End -->
-        <div class="card card-end" data-year="1900" data-pop="500">
+        <div class="card card-end" data-year="1900" data-pop="500" data-bg="images/0_YZ2UmixkQBBzry69.webp">
             <div class="card-inner">
                 <div class="card-year">1900</div>
                 <h2 class="card-title">Functionally Extinct</h2>

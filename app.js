@@ -42,6 +42,9 @@ const $fill = document.getElementById('timelineFill');
 const $prompt = document.getElementById('scrollPrompt');
 const $cards = document.querySelectorAll('.card[data-year]');
 const $section = document.getElementById('cardsSection');
+let $atmoBg = null;
+let $atmoSideLeft = null;
+let $atmoSideRight = null;
 
 // ===================================
 // Utility
@@ -129,6 +132,15 @@ function updateFromYear(year) {
 // ===================================
 // Scroll interpolation & active card
 // ===================================
+function updateAtmosphericBackground(card) {
+  if (!card) return;
+  const bg = card.dataset.bg;
+  if (!bg) return;
+  if ($atmoBg) $atmoBg.style.backgroundImage = `url(${bg})`;
+  if ($atmoSideLeft) $atmoSideLeft.style.backgroundImage = `url(${bg})`;
+  if ($atmoSideRight) $atmoSideRight.style.backgroundImage = `url(${bg})`;
+}
+
 function setupScrollInterpolation() {
     if (!$section) return;
     $section.addEventListener('scroll', () => {
