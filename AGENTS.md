@@ -14,7 +14,9 @@
 
 ---
 
-**Current Architecture (as of 2026-05-21)** — v1.9
+**Current Architecture (as of 2026-06-23)** — v2.1 in progress; **deployment division**: shipped code lives in this `master` branch at `~/buffalo-counter/`, served on alternate path `bayarddevries.github.io/buffalo-counter/` (v1). Production rewrite v2 is served on `bayarddevries.github.io/buffalo-counter-v2/` from a parallel deployment and is structurally identical to this codebase; see `docs/audit-v2.md` for the v2 audit and `~/buffalo-audit/plans/` for the v2.1 fix plan.
+
+> If a sentence below still describes v1 behavior or v2 already contradicts it, the audit doc is more recent than this file. Trust the audit + plan docs for v2.1 state until this file is rewritten post-fix.
 
 ### Interaction Model: Scroll-Driven Snap Cards
 
@@ -95,13 +97,34 @@ buffalo-counter/
 - `--font-heading`: IM Fell English (counter value, card years)
 - `--font-body`: IBM Plex Sans (body text)
 
-### Content Rules
+### Open Bugs (v2.1 — see `docs/audit-v2.md` and fix plan)
+
+Tracked in `~/buffalo-audit/plans/buffalo-counter-v2-fix-plan.md`. Bug IDs match `docs/audit-v2.md`.
+
+| ID | Status | Target phase | File / line |
+|---|---|---|---|
+| B1 — counter year interpolation | open | P1A (Sprint 1) | `app.js:431, 127` |
+| B2 — duplicate `.card` CSS rule | open | P1B (Sprint 1) | `styles.css:379, 395` |
+| B3 — mobile inactive-card opacity | open | P3A (Sprint 1) | `styles.css:532-548` |
+| B4 — 1880 methodological rebound | open | P2A (Sprint 1) | `data/timeline.json` (1880 event) |
+| N1 — 1874 card too long | open | P2B (Sprint 1) | `data/timeline.json` (1874 event) |
+| N2 — voice inconsistency | open — **user gate** | P4A (Sprint 2) | `data/timeline.json` (all events) |
+| N4 — citation drift (sources [7]–[12] unreferenced) | open — **user gate** | P4B (Sprint 2) | `data/timeline.json` (sources array) |
+| U4 — fake cache-buster | open | P3A (Sprint 1) | `index.html:11` |
+
+Resolved during v2.1:
+- **B5** — `AGENTS.md` doc rot: resolved in P0 (this version).
+
+---
+
+## Content Rules
 
 - **No em dashes** — use colons or commas instead
 - **Past tense only** — all copy is historical narration
-- **Canadian flag** (🇨🇦) required on Canadian event cards
 - **Metis as victims** — framing Metis communities as victims of buffalo destruction caused by commercial hunting, military policy, and government action — never as perpetrators
 - Conversational, direct voice — no corporate buzzwords
+
+*(Removed: "Canadian flag (🇨🇦) required on Canadian event cards" — was unused; deleted per audit N3.)*
 
 ---
 

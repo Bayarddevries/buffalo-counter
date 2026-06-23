@@ -1,8 +1,28 @@
 # Changelog — The Buffalo Counter
 
 All notable changes to this project are documented here.
- 
- ## [2026-05-21] v1.9 — Atmospheric Backgrounds & Double Scroll Fix
+
+> Maintained in sync with `AGENTS.md` and the shipped source. If you find a stale entry here, the doc is the bug.
+>
+> **Current version:** v2.1 (in progress) — see "Open Bugs" section in AGENTS.md for active fix list.
+> **Live URL:** https://bayarddevries.github.io/buffalo-counter-v2/
+
+## [2026-06-23] v2.1 — Critical Bugfix Release (IN PROGRESS)
+
+Phase-tracked release addressing 15 findings from `docs/audit-v2.md` (June 2026 audit). Bug IDs match that doc.
+
+- [P0] **docs**: Add v2.1 entry; refresh AGENTS.md to match shipped v2 (event count, URL, snap behavior); pin `docs/audit-v2.md` into repo
+- [ ] **fix (B1)**: `app.js` — `updateFromScroll` snaps counter year to nearest event; population still interpolates between events
+- [ ] **fix (B2)**: `styles.css` — remove duplicate `.card` rule at line 379 (superseded by line 395)
+- [ ] **fix (B4,N1)**: `data/timeline.json` — annotate 1880 methodological rebound; tighten 1874 card body to peer rhythm
+- [ ] **fix (B3)**: `styles.css` — drop `@media (max-width: 767px)` inactive-card opacity blend; let scroll-snap mask inactive cards
+- [ ] **fix (U4)**: `index.html` — drop unused `?v=30` cache-buster from stylesheet href
+- [ ] **deferred (N2)**: Voice consistency — scheduled for Sprint 2; pending user choice between first-person plural ("we") vs third-person reportage
+- [ ] **deferred (N4)**: Citation drift (sources [7]–[12] unreferenced) — scheduled for Sprint 2; pending user choice between prune vs anchor
+
+See `~/buffalo-audit/plans/buffalo-counter-v2-fix-plan.md` for full verification protocol per phase.
+
+
 
 - **feat**: Full-bleed atmospheric era backgrounds — a fixed `.atmo-bg` element behind all content switches historical images as the user scrolls through eras (image swaps driven by `app.js` era logic)
 - **feat**: Vignette overlay — radial gradient `.atmo-overlay` darkens screen edges (rgba(10,10,10,0.2) → 0.85) to keep card text readable against photos
