@@ -17,6 +17,9 @@ Phase-tracked release addressing 15 findings from `docs/audit-v2.md` (June 2026 
 - [ ] **fix (B4,N1)**: `data/timeline.json` — annotate 1880 methodological rebound; tighten 1874 card body to peer rhythm
 - [ ] **fix (B3)**: `styles.css` — drop `@media (max-width: 767px)` inactive-card opacity blend; let scroll-snap mask inactive cards
 - [ ] **fix (U4)**: `index.html` — drop unused `?v=30` cache-buster from stylesheet href
+- [x] **fix**: `app.js` — initialize atmospheric background on load (was `null` in `$atmoBg` until first scroll; `updateAtmosphericBackground($cards[0])` now called in `init()` after setting active card)
+- [x] **fix**: `app.js` — `$atmoBg` now assigned `document.getElementById('atmoBg')` at declaration instead of left as `null`; this was the root cause of backgrounds never appearing
+- [x] **feat**: `app.js` — full keyboard navigation: `ArrowDown`/`PageDown`/`Space` to next card, `ArrowUp`/`PageUp` to previous, `Home`/`End` to jump to first/last; instant scroll-to-card
 - [ ] **deferred (N2)**: Voice consistency — scheduled for Sprint 2; pending user choice between first-person plural ("we") vs third-person reportage
 - [ ] **deferred (N4)**: Citation drift (sources [7]–[12] unreferenced) — scheduled for Sprint 2; pending user choice between prune vs anchor
 

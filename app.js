@@ -42,9 +42,9 @@ const $fill = document.getElementById('timelineFill');
 const $prompt = document.getElementById('scrollPrompt');
 const $cards = document.querySelectorAll('.card[data-year]');
 const $section = document.getElementById('cardsSection');
-let $atmoBg = null;
-let $atmoSideLeft = null;
-let $atmoSideRight = null;
+let $atmoBg = document.getElementById('atmoBg');
+let $atmoSideLeft = document.querySelector('.atmo-side-left');
+let $atmoSideRight = document.querySelector('.atmo-side-right');
 
 // ===================================
 // Utility
@@ -222,6 +222,57 @@ function updateFromScroll() {
 }
 
 // ===================================
+// Keyboard Navigation
+// ===================================
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', (e) => {
+        if (!$section) return;
+
+        const cardArray = Array.from($cards).filter(c => c.dataset.year);
+        if (cardArray.length === 0) return;
+
+        const activeCard = $section.querySelector('.card.active');
+        const activeIndex = cardArray.indexOf(activeCard);
+
+        let targetIndex = activeIndex;
+
+        switch (e.key) {
+            case 'ArrowDown':
+            case 'PageDown':
+            case ' ':
+            case 'Spacebar':
+                e.preventDefault();
+                targetIndex = Math.min(activeIndex + 1, cardArray.length - 1);
+                break;
+            case 'ArrowUp':
+            case 'PageUp':
+                e.preventDefault();
+                targetIndex = Math.max(activeIndex - 1, 0);
+                break;
+            case 'Home':
+                e.preventDefault();
+                targetIndex = 0;
+                break;
+            case 'End':
+                e.preventDefault();
+                targetIndex = cardArray.length - 1;
+                break;
+        }
+
+        if (targetIndex !== activeIndex) {
+            const targetCard = cardArray[targetIndex];
+            const cardTop = targetCard.getBoundingClientRect().top;
+            const sectionTop = $section.getBoundingClientRect().top;
+            const scrollTarget = $section.scrollTop + cardTop - sectionTop;
+            $section.scrollTo({
+                top: scrollTarget,
+                behavior: 'auto'
+            });
+        }
+    });
+}
+
+// ===================================
 // Splash
 // ===================================
 function setupSplash() {
@@ -293,9 +344,13 @@ function setupCitationToast() {
 // ===================================
 function init() {
     updateFromYear(1800);
-    // Set initial active card
-    if ($cards.length > 0) $cards[0].classList.add('active');
+    // Set initial active card and apply its atmospheric background
+    if ($cards.length > 0) {
+        $cards[0].classList.add('active');
+        updateAtmosphericBackground($cards[0]);
+    }
     setupScrollInterpolation();
+    setupKeyboardNavigation();
     setupSplash();
     setupSources();
     setupCitationToast();
